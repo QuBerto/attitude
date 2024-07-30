@@ -69,20 +69,22 @@ class BingoCardSeeder extends Seeder
         // Create teams
         $teamA = Team::create(['name' => 'Team A']);
         $teamB = Team::create(['name' => 'Team B']);
+        $teamC = Team::create(['name' => 'Team C']);
 
         $bingoCard->teams()->attach($teamA->id);
         $bingoCard->teams()->attach($teamB->id);
-
+        $bingoCard->teams()->attach($teamC->id);
         // Fetch existing Discord users
-        $discordUsers = DiscordUser::whereNotNull('nick')->take(30)->get();
+        $discordUsers = DiscordUser::whereNotNull('nick')->take(45)->get();
 
         // Split users into two groups, up to 15 per team
         $usersForTeamA = $discordUsers->splice(0, min(15, $discordUsers->count()));
         $usersForTeamB = $discordUsers->splice(0, min(15, $discordUsers->count()));
-
+        $usersForTeamC = $discordUsers->splice(0, min(15, $discordUsers->count()));
         // Assign users to teams
         $teamA->users()->attach($usersForTeamA->pluck('id')->toArray());
         $teamB->users()->attach($usersForTeamB->pluck('id')->toArray());
+        $teamC->users()->attach($usersForTeamC->pluck('id')->toArray());
     }
       /**
      * Download image from URL and save to storage.

@@ -25,5 +25,12 @@ class Team extends Model
     {
         return $this->hasMany(TaskCompletion::class);
     }
+    public function hasCompletedAllTasks(Tile $tile)
+    {
+        $taskIds = $tile->tasks->pluck('id');
+        $completedTaskIds = $this->completions->pluck('task_id');
+
+        return $taskIds->diff($completedTaskIds)->isEmpty();
+    }
 }
 

@@ -13,7 +13,8 @@
       </tr>
     </thead>
     <tbody class="divide-y divide-gray-200">
-        @foreach($bingoCard->teams[0]->completions as $completion)
+      @isset($team)
+      @foreach($team->completions as $completion)
       <tr>
         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">{{ $completion->task->description }}</td>
         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">{{$completion->user->username}}</td>
@@ -22,6 +23,17 @@
       
       </tr>
       @endforeach
+      @else
+      @foreach($bingoCard->teams[0]->completions as $completion)
+      <tr>
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">{{ $completion->task->description }}</td>
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">{{$completion->user->username}}</td>
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">{{$completion->team->name}}</td>
+
+      
+      </tr>
+      @endforeach
+      @endisset
       <!-- More people... -->
     </tbody>
   </table>

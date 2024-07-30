@@ -1,4 +1,4 @@
-<div class="flex flex-col justify-between h-full">
+<div class="flex flex-col justify-center h-full">
     <div>
         
         <h3 class="text-sm text-center">{{ $tile->title }}</h3>

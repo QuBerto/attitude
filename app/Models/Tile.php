@@ -27,6 +27,8 @@ class Tile extends Model implements HasMedia
         return $this->hasMany(Task::class);
     }
 
+    
+
     public function registerMediaConversions(?Media $media = null): void
 {
     $this

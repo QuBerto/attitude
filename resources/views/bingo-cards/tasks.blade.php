@@ -69,7 +69,7 @@
                         return;
                     }
 
-                    fetch(`/tasks/${taskId}/complete`, {
+                    fetch(`{{env('APP_URL')}}/tasks/${taskId}/complete`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

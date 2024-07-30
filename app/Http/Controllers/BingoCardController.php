@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\BingoCard;
 use App\Models\DiscordUser;
 use Illuminate\Http\Request;
+use App\Models\Team;
+
 
 class BingoCardController extends Controller
 {
@@ -70,5 +72,9 @@ class BingoCardController extends Controller
     {
     
         return view('frontend.bingo.bingo', compact('bingoCard'));
+    }
+    public function frontend_team(BingoCard $bingoCard, Team $team)
+    {
+        return view('frontend.bingo.bingo', compact('bingoCard', 'team'));
     }
 }

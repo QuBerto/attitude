@@ -10,7 +10,7 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <a href="{{ route('bingo-cards.create') }}" class="bg-blue-500 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-900 text-white font-bold py-2 px-4 rounded">
-                        {{ __('Create Bingo Card') }}
+                        {{ __('Create Bingo') }}
                     </a>
                     <ul class="mt-4">
                         @foreach ($bingoCards as $card)
@@ -19,7 +19,7 @@
                                     {{ $card->name }}
                                 </a>
                                 <div>
-                                    <a href="{{ route('bingo-cards.edit', $card->id) }}" class="bg-yellow-500 hover:bg-yellow-700 dark:bg-yellow-600 dark:hover:bg-yellow-800 text-white font-bold py-2 px-4 rounded">
+                                    <a href="{{ route('bingo-cards.edit', $card->id) }}" class="bg-yellow-500 mr-2 hover:bg-yellow-700 dark:bg-yellow-600 dark:hover:bg-yellow-800 text-white font-bold py-2 px-4 rounded">
                                         {{ __('Edit') }}
                                     </a>
                                     <form action="{{ route('bingo-cards.destroy', $card->id) }}" method="POST" class="inline">

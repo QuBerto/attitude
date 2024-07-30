@@ -213,7 +213,7 @@
                     const teamId = document.querySelector(`.team[data-team-id]:not(.hidden)`).dataset.teamId;
                     const userId = document.querySelector(`.team[data-team-id="${teamId}"] .delete-member-button`).dataset.userId;
 
-                    fetch(`/tasks/${taskId}/complete`, {
+                    fetch(`{{env('APP_URL')}}/tasks/${taskId}/complete`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

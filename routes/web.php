@@ -17,6 +17,7 @@ use App\Http\Controllers\WordGuessController;
 
 
 Route::get('/bingo/{bingoCard}', [BingoCardController::class, 'frontend']);
+Route::get('/bingo/{bingoCard}/team/{team}', [BingoCardController::class, 'frontend_team'])->name('frontend-teams');
 Route::get('/members', [RSAccountController::class, 'frontend'])->name('frontend.members');
 //Route::get('/calendar', [RSAccountController::class, 'frontend'])->name('frontend.calendar');
 Route::get('/calendar', [CalendarController::class, 'show'])->name('calendar.show');
