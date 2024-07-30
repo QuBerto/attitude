@@ -15,9 +15,9 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('events.create')" :active="request()->routeIs('events.create')">
+                    {{-- <x-nav-link :href="route('events.create')" :active="request()->routeIs('events.create')">
                         {{ __('Events') }}
-                    </x-nav-link>
+                    </x-nav-link> --}}
                     <x-nav-link :href="route('bingo-cards.index')" :active="request()->routeIs('bingo-cards.index')">
                         {{ __('Bingo') }}
                     </x-nav-link>
