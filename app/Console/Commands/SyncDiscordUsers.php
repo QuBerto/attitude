@@ -32,6 +32,7 @@ class SyncDiscordUsers extends Command
     {
         $discordMembers = $discord->connect('members?limit=1000');
         $roles = $discord->listRoles();
+   
         foreach ($roles as $roleData) {
             DiscordRole::updateOrCreate(
                 ['role_id' => $roleData['id']],

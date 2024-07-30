@@ -10,6 +10,7 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     @foreach ($teams as $team)
+
                         <h3 class="text-lg font-semibold mt-6">{{ $team->name }} Tasks</h3>
                         <table class="min-w-full bg-white dark:bg-gray-800 mb-6">
                             <thead>
@@ -26,7 +27,7 @@
                                         $completion = $task->completions->where('team_id', $team->id)->first();
                                     @endphp
                                     <tr>
-                                        <td class="border px-4 py-2">{{ $task->description }}</td>
+                                        <td class="border px-4 py-2">{{ $task->description }}<br><small>{{$task->tile->title}}</small></td>
                                         <td class="border px-4 py-2">
                                             {{ $completion ? 'Yes' : 'No' }}
                                         </td>

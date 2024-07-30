@@ -19,8 +19,8 @@
                                     {{ $card->name }}
                                 </a>
                                 <div>
-                                    <a href="{{ route('bingo-cards.edit', $card->id) }}" class="bg-yellow-500 mr-2 hover:bg-yellow-700 dark:bg-yellow-600 dark:hover:bg-yellow-800 text-white font-bold py-2 px-4 rounded">
-                                        {{ __('Edit') }}
+                                    <a href="{{ route('tasks.index', $card->id) }}" class="bg-yellow-500 mr-2 hover:bg-yellow-700 dark:bg-yellow-600 dark:hover:bg-yellow-800 text-white font-bold py-2 px-4 rounded">
+                                        {{ __('Tasks') }}
                                     </a>
                                     <form action="{{ route('bingo-cards.destroy', $card->id) }}" method="POST" class="inline">
                                         @csrf
