@@ -26,6 +26,6 @@
                         </div>
                     </div>
                 </main>
-{{dd($bingoCard)}}
+
                 @stop
      
