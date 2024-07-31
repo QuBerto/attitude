@@ -30,7 +30,7 @@ Route::get('/calendar2', function () {
 
 
 
-
+Route::get('/', [BingoCardController::class, 'frontend_temp']);
 Route::post('/submit-guess', [WordGuessController::class, 'submitGuess']);
 
 Route::get('/dashboard', function () {

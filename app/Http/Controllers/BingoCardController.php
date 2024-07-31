@@ -68,7 +68,11 @@ class BingoCardController extends Controller
         $bingoCard->delete();
         return redirect()->route('bingo-cards.index')->with('status', 'Bingo Card deleted successfully.');
     }
-
+    public function frontend_temp()
+    {
+        $bingoCard = BingoCard::first();
+        return view('frontend.bingo.bingo', compact('bingoCard'));
+    }
     public function frontend(BingoCard $bingoCard)
     {
     
