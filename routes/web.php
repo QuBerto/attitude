@@ -59,7 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('tasks', TaskController::class)->only(['store']);
 
     Route::post('teams/{card}/store', [TeamController::class, 'store'])->name('teams.store');
-    Route::post('teams/{team}/add-member', [TeamController::class, 'addMember'])->name('teams.addMember');
+    Route::post('teams/{team}/addMember', [TeamController::class, 'addMember'])->name('teams.addMember');
     Route::post('/teams/{team}/removeMember', [TeamController::class, 'removeMember'])->name('teams.removeMember');
     Route::post('/tasks/{task}/complete', [TaskController::class, 'completeTask'])->name('tasks.complete');
     Route::post('/tasks/{task}/undo', [TaskController::class, 'undoTask']);
