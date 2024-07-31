@@ -57,7 +57,8 @@ class ScreenshotController extends Controller
         $client = new Client();
 
         try {
-            $response = $client->post("https://discord.com/api/v9/channels/{$discordChannelId}/messages", [
+            $response = $client->post("https://discord.com/api/v9/channels/1267270235317080064/messages", [
+            //$response = $client->post("https://discord.com/api/v9/channels/{$discordChannelId}/messages", [
                 'headers' => [
                     'Authorization' => "Bot {$discordBotToken}",
                 ],
