@@ -14,6 +14,9 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\WordGuessController;
 // Route::get('/', [DiscordUserController::class, 'index']);
+use App\Http\Controllers\ScreenshotController;
+
+
 
 
 Route::get('/bingo/{bingoCard}', [BingoCardController::class, 'frontend']);
@@ -35,7 +38,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-
+    Route::post('/capture-screenshot', [ScreenshotController::class, 'capture'])->name('capture.screenshot');
     //Discord Users
     Route::get('/discord-users', [DiscordUserController::class, 'index'])->name('discord-users.index');
     Route::get('/discord-users/show/{discordUser}', [DiscordUserController::class, 'show'])->name('discord-users.show');
@@ -57,8 +60,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('teams/{card}/store', [TeamController::class, 'store'])->name('teams.store');
     Route::post('teams/{team}/add-member', [TeamController::class, 'addMember'])->name('teams.addMember');
+    Route::post('/teams/{team}/removeMember', [TeamController::class, 'removeMember'])->name('teams.removeMember');
     Route::post('/tasks/{task}/complete', [TaskController::class, 'completeTask'])->name('tasks.complete');
-
+    Route::post('/tasks/{task}/undo', [TaskController::class, 'undoTask']);
 
     Route::get('/tasks/{task}', [TaskController::class, 'index'])->name('tasks.index');
 

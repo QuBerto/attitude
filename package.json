@@ -24,6 +24,9 @@
         "vite": "^5.0"
     },
     "dependencies": {
-        "capture-website": "^4.1.0"
+        "capture-website": "^4.1.0",
+        "discord.js": "^14.15.3",
+        "form-data": "^4.0.0",
+        "node-fetch": "^3.3.2"
     }
 }

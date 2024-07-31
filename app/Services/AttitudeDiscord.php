@@ -5,7 +5,7 @@ namespace App\Services;
 class AttitudeDiscord
 {
 
-    private $guildId;
+    public $guildId;
     private $token;
     private $rolId;
 
@@ -27,7 +27,7 @@ class AttitudeDiscord
             ],
             CURLOPT_RETURNTRANSFER => true
         ]);
-
+       
         $response = curl_exec($ch);
         if ($response === false) {
             die('Error retrieving data from Discord API.');
@@ -64,6 +64,11 @@ class AttitudeDiscord
     public function listRoles()
     {
         return $this->connect('roles');
+    }
+
+    public function listChannels()
+    {
+        return $this->connect('channels');
     }
 
 

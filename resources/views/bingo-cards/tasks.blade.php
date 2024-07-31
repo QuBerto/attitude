@@ -42,8 +42,8 @@
                                             </select>
                                         </td>
                                         <td class="border px-4 py-2">
-                                            <button class="complete-task-button bg-green-500 text-white px-4 py-2 rounded" data-task-id="{{ $task->id }}" data-team-id="{{ $team->id }}">
-                                                {{ __('Complete Task') }}
+                                            <button class="task-action-button bg-green-500 text-white px-4 py-2 rounded" data-task-id="{{ $task->id }}" data-team-id="{{ $team->id }}" data-action="{{ $completion ? 'undo' : 'complete' }}">
+                                                {{ $completion ? __('Undo') : __('Complete Task') }}
                                             </button>
                                         </td>
                                     </tr>
@@ -58,19 +58,20 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.complete-task-button').forEach(button => {
+            document.querySelectorAll('.task-action-button').forEach(button => {
                 button.addEventListener('click', function () {
                     const taskId = this.dataset.taskId;
                     const teamId = this.dataset.teamId;
+                    const action = this.dataset.action;
                     const userSelect = document.querySelector(`.user-select[data-task-id="${taskId}"][data-team-id="${teamId}"]`);
                     const userId = userSelect.value;
 
-                    if (!userId) {
+                    if (!userId && action === 'complete') {
                         alert('Please select a user.');
                         return;
                     }
 
-                    fetch(`{{env('APP_URL')}}/tasks/${taskId}/complete`, {
+                    fetch(`{{env('APP_URL')}}/tasks/${taskId}/${action}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -84,10 +85,10 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert('Task completed successfully!');
+                            alert(`Task ${action === 'complete' ? 'completed' : 'undone'} successfully!`);
                             location.reload();
                         } else {
-                            alert('Error completing task.');
+                            alert(`Error ${action === 'complete' ? 'completing' : 'undoing'} task.`);
                         }
                     });
                 });

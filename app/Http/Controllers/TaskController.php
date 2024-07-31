@@ -52,5 +52,31 @@ class TaskController extends Controller
 
         return response()->json(['success' => true, 'task' => $task]);
     }
+
+    public function undoTask(Request $request, Task $task)
+    {
+        $request->validate([
+            'discord_user_id' => '',
+            'team_id' => 'required|exists:teams,id',
+        ]);
+        $discord_id = $request->input('discord_user_id');
+        if ($discord_id){
+            TaskCompletion::where('task_id', $task->id)
+            ->where('team_id', $request->input('team_id'))
+            ->where('discord_user_id', $request->input('discord_user_id'))
+            ->delete();
+
+            return response()->json(['success' => true]);
+        }
+        else{
+            TaskCompletion::where('task_id', $task->id)
+            ->where('team_id', $request->input('team_id'))
+            
+            ->delete();
+
+            return response()->json(['success' => true]);
+        }
+      
+    }
    
 }

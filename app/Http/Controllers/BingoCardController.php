@@ -6,7 +6,7 @@ use App\Models\BingoCard;
 use App\Models\DiscordUser;
 use Illuminate\Http\Request;
 use App\Models\Team;
-
+use App\Services\AttitudeDiscord;
 
 class BingoCardController extends Controller
 {
@@ -41,9 +41,10 @@ class BingoCardController extends Controller
     {
         // Fetch Discord users where 'nick' is not null
         $discordUsers = DiscordUser::whereNotNull('nick')->get();
-        
+        $discord = new AttitudeDiscord(env('DISCORD_GUILD_ID'),env('DISCORD_BOT_TOKEN'));
+        $channels = $discord->listChannels();
         // Return the view with the bingoCard and discordUsers
-        return view('bingo-cards.show', compact('bingoCard', 'discordUsers'));
+        return view('bingo-cards.show', compact('bingoCard', 'discordUsers', 'channels'));
     }
     
 

@@ -35,4 +35,15 @@ class TeamController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function removeMember(Request $request, Team $team)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:discord_users,id',
+        ]);
+
+        $team->users()->detach($request->input('user_id'));
+
+        return response()->json(['success' => true]);
+    }
 }
