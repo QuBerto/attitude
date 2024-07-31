@@ -39,7 +39,7 @@ class ScreenshotController extends Controller
             throw new ProcessFailedException($process);
         }
     
-        return response()->download($this->sendImageToDiscord($channel, $outputPath));
+        return response()->json($this->sendImageToDiscord($channel, $outputPath));
     }
    
 
