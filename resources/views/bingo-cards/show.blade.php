@@ -150,7 +150,7 @@
             // Delete team with confirmation
             document.querySelectorAll('.delete-team-button').forEach(button => {
                 button.addEventListener('click', function() {
-                    if (confirm('Are you sure you want to delete this team?')) {
+                    //if (confirm('Are you sure you want to delete this team?')) {
                         const teamId = this.dataset.teamId;
         
                         fetch(`{{ url('teams') }}/${teamId}`, {
@@ -166,7 +166,7 @@
                                 location.reload();
                             }
                         });
-                    }
+                    //}
                 });
             });
 
