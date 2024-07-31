@@ -26,9 +26,10 @@ class ScreenshotController extends Controller
 
         // Executes after the command finishes
         if (!$process->isSuccessful()) {
+            dd($process);
             throw new ProcessFailedException($process);
         }
-
+        dd($process);
         dd($this->sendImageToDiscord($channel, $outputPath));
         return response()->download($outputPath);
     }
@@ -42,7 +43,7 @@ class ScreenshotController extends Controller
         // Discord API settings
         $discordChannelId = $channel;
         $discordBotToken = env('DISCORD_BOT_TOKEN');
-        $message = 'Here is the screenshot:';
+        $message = '';
         
         // Initialize GuzzleHTTP client
         $client = new Client();

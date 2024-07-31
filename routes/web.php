@@ -29,7 +29,7 @@ Route::get('/calendar2', function () {
 });
 
 
-
+Route::post('/capture-screenshot', [ScreenshotController::class, 'capture'])->name('capture.screenshot');
 Route::get('/', [BingoCardController::class, 'frontend_temp']);
 Route::post('/submit-guess', [WordGuessController::class, 'submitGuess']);
 
@@ -38,7 +38,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::post('/capture-screenshot', [ScreenshotController::class, 'capture'])->name('capture.screenshot');
+    
     //Discord Users
     Route::get('/discord-users', [DiscordUserController::class, 'index'])->name('discord-users.index');
     Route::get('/discord-users/show/{discordUser}', [DiscordUserController::class, 'show'])->name('discord-users.show');
