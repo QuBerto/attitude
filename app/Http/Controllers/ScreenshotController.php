@@ -10,27 +10,38 @@ class ScreenshotController extends Controller
 {
     public function capture(Request $request)
     {
-
-        
-        $team = $request->input('team');
+        $teamInput = $request->input('team');
         $channel = $request->input('channel');
-        $team = Team::find($team);
+    
+        // Determine if the team input is a number or a string
+        if (is_numeric($teamInput)) {
+            $team = Team::find($teamInput);
+        } else {
+            $team = Team::where('name', 'LIKE', 'Team ' . $teamInput)->first();
+        }
+    
+        // Check if the team exists
+        if (!$team) {
+            return response()->json(['error' => 'Team not found'], 404);
+        }
+    
         $bingo_id = $team->bingoCards[0]->id;
-
-        $url = route('frontend-teams', ['bingoCard'=> $bingo_id, 'team' => $team->id]);
-        
+    
+        $url = route('frontend-teams', ['bingoCard' => $bingo_id, 'team' => $team->id]);
+    
         $outputPath = public_path("screenshots/screenshot_team_{$team->id}.png");
-     
+    
         $process = new Process(['node', base_path('resources/js/capture.js'), $url, $outputPath]);
         $process->run();
-
+    
         // Executes after the command finishes
         if (!$process->isSuccessful()) {
-            dd($process);
             throw new ProcessFailedException($process);
         }
-        dd($process);
-        dd($this->sendImageToDiscord($channel, $outputPath));
+    
+        // Send the image to Discord
+        $this->sendImageToDiscord($channel, $outputPath);
+    
         return response()->download($outputPath);
     }
    
