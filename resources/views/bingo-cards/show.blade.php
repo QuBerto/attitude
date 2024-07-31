@@ -125,7 +125,7 @@
             // Delete member with confirmation
             document.querySelectorAll('.delete-member-button').forEach(button => {
                 button.addEventListener('click', function() {
-                    if (confirm('Are you sure you want to delete this member?')) {
+                    //if (confirm('Are you sure you want to delete this member?')) {
                         const teamId = this.dataset.teamId;
                         const userId = this.dataset.userId;
         
@@ -143,7 +143,7 @@
                                 location.reload();
                             }
                         });
-                    }
+                    //}
                 });
             });
         
