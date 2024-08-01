@@ -48,7 +48,7 @@
                                             </select>
                                         </td>
                                         <td class="border px-4 py-2">
-                                            <input class=" bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 " type="text" name="description">
+                                            <input id="task-description-{{ $task->id }}-{{ $team->id }}" class="task-description bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 " type="text" name="description" value="{{ $completion->description ?? '' }}">
                                         </td>
                                         <td class="border px-4 py-2">
                                             <button class="task-action-button bg-green-500 text-white px-4 py-2 rounded" data-task-id="{{ $task->id }}" data-team-id="{{ $team->id }}" data-action="{{ $completion ? 'undo' : 'complete' }}">
@@ -71,8 +71,9 @@
                 button.addEventListener('click', function () {
                     const taskId = this.dataset.taskId;
                     const teamId = this.dataset.teamId;
-                    const description = this.dataset.description;
                     const action = this.dataset.action;
+                    const descriptionInput = document.getElementById(`task-description-${taskId}-${teamId}`);
+                    const description = descriptionInput ? descriptionInput.value : '';
                     const userSelect = document.querySelector(`.user-select[data-task-id="${taskId}"][data-team-id="${teamId}"]`);
                     const userId = userSelect.value;
 

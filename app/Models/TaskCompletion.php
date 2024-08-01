@@ -10,7 +10,7 @@ class TaskCompletion extends Model
     use HasFactory;
 
     protected $fillable = [
-        'task_id', 'discord_user_id', 'team_id'
+        'task_id', 'discord_user_id', 'team_id', 'description'
     ];
 
     public function task()

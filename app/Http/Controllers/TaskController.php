@@ -23,12 +23,13 @@ class TaskController extends Controller
         $request->validate([
             'discord_user_id' => 'required|exists:discord_users,id',
             'team_id' => 'required|exists:teams,id',
-            'description' => ''
+            'description' => 'string'
         ]);
 
         TaskCompletion::updateOrCreate(
             ['task_id' => $task->id, 'team_id' => $request->input('team_id')],
-            ['discord_user_id' => $request->input('discord_user_id')]
+            ['discord_user_id' => $request->input('discord_user_id'),
+             'description' => $request->input('description')]
         );
 
         return response()->json(['success' => true]);

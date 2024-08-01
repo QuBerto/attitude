@@ -16,8 +16,12 @@
       @isset($team)
       @foreach($team->completions as $completion)
       <tr>
-        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">{{ $completion->task->description }}</td>
-        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">{{$completion->user->username}}</td>
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">{{ $completion->task->description }}@if($completion->description)
+          <br>
+          <small>{{$completion->description}}</small>
+          @endif
+        </td>
+        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">{{$completion->user->nick}}</td>
         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-300">{{$completion->team->name}}</td>
 
       
