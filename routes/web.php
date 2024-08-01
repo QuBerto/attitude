@@ -34,8 +34,9 @@ Route::get('/', [BingoCardController::class, 'frontend_temp']);
 Route::post('/submit-guess', [WordGuessController::class, 'submitGuess']);
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return redirect()->route('tasks.team', ['team' => 1, 'bingo' => 1]);
 })->middleware(['auth', 'verified'])->name('dashboard');
+
 
 Route::middleware('auth')->group(function () {
     
