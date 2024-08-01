@@ -65,7 +65,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/tasks/{task}/undo', [TaskController::class, 'undoTask']);
 
     Route::get('/tasks/{task}', [TaskController::class, 'index'])->name('tasks.index');
-
+    Route::get('/tasks/{bingo}/{team}', [TaskController::class, 'team'])->name('tasks.team');
 
 
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');

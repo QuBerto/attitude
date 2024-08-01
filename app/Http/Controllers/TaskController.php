@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Team;
 use App\Models\Task;
 use App\Models\Tile;
+use App\Models\BingoCard;
 use Illuminate\Http\Request;
 use App\Models\TaskCompletion;
 use App\Models\DiscordUser;
@@ -13,8 +14,8 @@ class TaskController extends Controller
     {
         $tasks = Task::all();
         $teams = Team::with('users')->get();
-
-        return view('bingo-cards.tasks', compact('tasks', 'teams'));
+        $allteams = Team::all();
+        return view('bingo-cards.tasks', compact('tasks', 'teams', 'allteams'));
     }
 
     public function completeTask(Request $request, Task $task)
@@ -22,6 +23,7 @@ class TaskController extends Controller
         $request->validate([
             'discord_user_id' => 'required|exists:discord_users,id',
             'team_id' => 'required|exists:teams,id',
+            'description' => ''
         ]);
 
         TaskCompletion::updateOrCreate(
@@ -77,6 +79,13 @@ class TaskController extends Controller
             return response()->json(['success' => true]);
         }
       
+    }
+
+    public function team(BingoCard $bingo, Team $team){
+        $tasks = Task::all();
+        $teams = [$team];
+        $allteams = Team::all();
+        return view('bingo-cards.tasks', compact('tasks', 'teams', 'allteams'));
     }
    
 }
