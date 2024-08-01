@@ -15,7 +15,7 @@ class TileController extends Controller
             'image' => 'nullable|image',
         ]);
 
-        $tile->description = $request->input('title');
+        $tile->title = $request->input('title');
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('tiles', 'public');
