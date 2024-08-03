@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\BingoCard;
 use App\Models\DiscordUser;
+use App\Models\PlayerMeta;
+use App\Models\RSAccount;
 use Illuminate\Http\Request;
 use App\Models\Team;
 use App\Services\AttitudeDiscord;
-
+use App\Services\WiseOldManService;
 class BingoCardController extends Controller
 {
     public function index()
@@ -82,4 +84,16 @@ class BingoCardController extends Controller
     {
         return view('frontend.bingo.bingo', compact('bingoCard', 'team'));
     }
+
+    public function frontend_progress($bingocard, $team){
+        $bingo = (Team::find($bingocard));
+        $team = (Team::find($team));
+        if (!$team || !$bingo){
+            abort(404);
+        }
+
+        return view('frontend.bingo.teamstats', compact('bingo', 'team'));
+        
+    }
+   
 }

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-
+use App\Models\PlayerMeta;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -41,4 +41,17 @@ class RSAccount extends Model
     {
         return $this->belongsTo(DiscordUser::class);
     }
+
+     // Define the relationship
+     public function meta()
+    {
+        return $this->hasMany(PlayerMeta::class, 'r_s_accounts_id');
+    }
+ 
+     // Define a helper method to get meta by key
+     public function getMeta($key)
+     {
+         return $this->meta()->where('key', $key)->first();
+     }
+    
 }

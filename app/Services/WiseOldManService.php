@@ -63,4 +63,30 @@ class WiseOldManService
 
         return null;
     }
+
+    public function getPlayerGain($player)
+    {
+        $start_data = '2024-07-31';
+        $end_data = '2024-08-31';
+
+        try {
+            $response = Http::get("{$this->baseUrl}/players/{$player}/gained", [
+                'startDate' => $start_data,
+                'endDate' => $end_data
+            ]);
+
+            if ($response->successful()) {
+       
+                // Handle successful response
+                $data = $response->json();
+                return response()->json(['success' => true, 'data' => $data]);
+            } else {
+                // Handle non-successful response
+                return response()->json(['success' => false, 'message' => 'Error fetching data'], $response->status());
+            }
+        } catch (\Exception $e) {
+            // Handle exceptions
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
 }
