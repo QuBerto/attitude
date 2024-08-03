@@ -13,7 +13,7 @@ class ScreenshotController extends Controller
         // Validate that all inputs are strings
         $validatedData = $request->validate([
             'team' => 'required|string',
-            'channel' => 'required|string',
+            'channel' => 'required',
             'selector' => 'required|string',
         ]);
 
