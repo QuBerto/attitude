@@ -23,7 +23,7 @@ if(isset($team)){
 <div>
 @isset($team)
 @foreach($team->users as $user)
-<span class="inline-block mb-2 bg-gray-200 dark:bg-gray-700 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 dark:text-gray-300 mr-2">
+<span class="inline-block mb-2 bg-gray-700 rounded-full px-3 py-1 text-sm font-semibold text-gray-300 mr-2">
     {{ $user->nick }}
 </span>
 @endforeach

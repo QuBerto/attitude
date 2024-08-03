@@ -10,9 +10,17 @@ class ScreenshotController extends Controller
 {
     public function capture(Request $request)
     {
-        $teamInput = $request->input('team');
-        $channel = $request->input('channel');
-    
+        // Validate that all inputs are strings
+        $validatedData = $request->validate([
+            'team' => 'required|string',
+            'channel' => 'required|string',
+            'selector' => 'required|string',
+        ]);
+
+        // Retrieve the validated input data
+        $teamInput = $validatedData['team'];
+        $channel = $validatedData['channel'];
+        $selector = $validatedData['selector'];
         // Determine if the team input is a number or a string
         if (is_numeric($teamInput)) {
             $team = Team::find($teamInput);
@@ -29,9 +37,9 @@ class ScreenshotController extends Controller
     
         $url = route('frontend-teams', ['bingoCard' => $bingo_id, 'team' => $team->id]);
     
-        $outputPath = public_path("screenshots/screenshot_team_{$team->id}.png");
+        $outputPath = public_path("screenshots/screenshot_team_{$selector}_{$team->id}.png");
     
-        $process = new Process(['node', base_path('resources/js/capture.js'), $url, $outputPath]);
+        $process = new Process(['node', base_path('resources/js/capture.js'), $url, $outputPath, $selector]);
         $process->run();
     
         // Executes after the command finishes
@@ -57,8 +65,9 @@ class ScreenshotController extends Controller
         $client = new Client();
 
         try {
-            $response = $client->post("https://discord.com/api/v9/channels/1267270235317080064/messages", [
+            //$response = $client->post("https://discord.com/api/v9/channels/1267270235317080064/messages", [
             //$response = $client->post("https://discord.com/api/v9/channels/{$discordChannelId}/messages", [
+            $response = $client->post("https://discord.com/api/v9/channels/1130621274792665089/messages", [
                 'headers' => [
                     'Authorization' => "Bot {$discordBotToken}",
                 ],

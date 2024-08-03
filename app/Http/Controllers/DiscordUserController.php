@@ -10,8 +10,9 @@ class DiscordUserController extends Controller
 {
     public function index()
     {
+        $rsAccounts = RSAccount::whereNull('discord_user_id')->get();
         $users = DiscordUser::with('roles')->get();
-        return view('discord-users.index', compact('users'));
+        return view('discord-users.index', compact('users', 'rsAccounts'));
     }
 
     public function show(DiscordUser $discordUser)

@@ -40,14 +40,17 @@ class SyncDiscordAndRSAccounts extends Command
 
             // Perform the replacement
             $participant = preg_replace($pattern, '', $discordUser->nick);
-
+            
             // Output the modified nick
            
             // Find RSAccounts with the same username, case-insensitive
             $matchingAccounts = RSAccount::whereRaw('LOWER(username) = ?', [strtolower($participant)])
                 ->orWhereRaw('LOWER(display_name) = ?', [strtolower($participant)])
                 ->get();
-                $this->info('Discord user: ' . trim($participant));
+                if ($participant == 'Gew'){
+                    $this->info('Discord user: ' . trim($discordUser));
+                }
+                
             foreach ($matchingAccounts as $account) {
                 
                 // Assign the RSAccount to the Discord user

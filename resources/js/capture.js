@@ -2,6 +2,7 @@ import captureWebsite from 'capture-website';
 
 const url = process.argv[2];
 const outputPath = process.argv[3];
+const selector = process.argv[4]; // Add this line to accept the selector as an argument
 
 (async () => {
     try {
@@ -18,7 +19,7 @@ const outputPath = process.argv[3];
                     value: 'dark'
                 }
             ],
-            element: '#docs-card' // Specify the CSS selector for the element to capture
+            element: selector // Use the selector argument here
         });
         console.log('Screenshot captured successfully');
     } catch (error) {

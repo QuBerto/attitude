@@ -12,27 +12,39 @@
                     <table class="min-w-full bg-white dark:bg-gray-800">
                         <thead class="bg-gray-800 text-white">
                             <tr>
-                                <th class="w-1/3 py-3 px-4 uppercase font-semibold text-sm">Username</th>
-                                <th class="w-1/3 py-3 px-4 uppercase font-semibold text-sm">Nick</th>
-                                <th class="w-1/3 py-3 px-4 uppercase font-semibold text-sm">RSN</th>
-                                <th class="w-1/3 py-3 px-4 uppercase font-semibold text-sm">Roles</th>
+                                <th class="w-1/4 py-3 px-4 uppercase font-semibold text-sm">Username (nick)</th>
+                                <th class="w-1/4 py-3 px-4 uppercase font-semibold text-sm">Roles</th>
+                                <th class="w-1/4 py-3 px-4 uppercase font-semibold text-sm">RSN</th>
+                                
                             </tr>
                         </thead>
                         <tbody class="text-gray-700 dark:text-gray-300">
                             @foreach ($users as $user)
                                 <tr>
-                                    <td class="w-1/3 py-3 px-4">{{ $user->username }}</td>
-                                    <td class="w-1/3 py-3 px-4">{{ $user->nick }}</td>
-                                    <td class="w-1/3 py-3 px-4">
-                                    @foreach($user->rsAccounts as $account)
-                                    {{ $account->username }}
-                                    @endforeach
-                                </td>
-                                    <td class="w-1/3 py-3 px-4 flex" style="max-width:250px;">
+                                    <td class="w-1/4 py-3 px-4">{{ $user->username }} ({{ $user->nick }})</td>
+                                    <td class="w-1/4 py-3 px-4" style="max-width:250px;">
                                         @foreach ($user->roles as $role)
-                                            <span style="background-color:{{$role->color}}" class="inline-block bg-gray-200 dark:bg-gray-700 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 dark:text-gray-300 mr-2">{{ $role->name }}</span>
+                                            <div style="background-color:{{ $role->color }};" class="p-2 mb-1 rounded">{{ $role->name }}</div>
                                         @endforeach
                                     </td>
+                                    <td class="w-1/4 py-3 px-4">
+                                        @foreach($user->rsAccounts as $account)
+                                            {{ $account->username }}
+                                        @endforeach
+                                        <form method="POST" action="{{ route('discord-users.assign-player', $user->id) }}" class="mt-2 flex items-center space-x-2">
+                                            @csrf
+                                            <input type="hidden" name="discord_user_id" value="{{ $user->id }}">
+                                            <select name="rs_account_id" class="block appearance-none bg-gray-800 border border-gray-700 text-white py-2 px-3 pr-8 rounded leading-tight focus:outline-none focus:bg-gray-700 focus:border-gray-500">
+                                                @foreach($rsAccounts as $rsaccount)
+                                                    <option value="{{ $rsaccount->id }}">{{ $rsaccount->username }}</option>
+                                                @endforeach
+                                            </select>
+                                            <button type="submit" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                                                Submit
+                                            </button>
+                                        </form>
+                                    </td>
+                                    
                                 </tr>
                             @endforeach
                         </tbody>

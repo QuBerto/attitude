@@ -1,6 +1,16 @@
 <form action="{{ route('capture.screenshot') }}" method="POST" class="border shadow-md rounded px-8 pt-6 pb-8 mb-4">
     @csrf
     <div class="mb-4">
+        <label for="selector" class="block text-sm font-medium mb-2">selector:</label>
+        <select id="selector" name="selector" class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            
+                <option value="#docs-card">Bingo Card</option>
+                <option value="#stats-card">Boss card</option>
+                <option value="#progress-card">Progress Card</option>
+            
+        </select>
+    </div>
+    <div class="mb-4">
         <label for="team" class="block text-sm font-medium mb-2">Team:</label>
         <select id="team" name="team" class="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
             @foreach ($bingoCard->teams as $bingoteam)

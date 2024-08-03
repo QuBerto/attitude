@@ -64,7 +64,7 @@ class SyncDiscordUsers extends Command
                     'discriminator' => $member['user']['discriminator'],
                 ]
             );
-            if (strpos($member['user']['username'], "5o.cent") !== false){
+            if (strpos($member['user']['username'], "erva") !== false){
                 $this->info('Synced user '. print_r($member,1));
                 $this->info('Synced user '. $member['user']['username']);
             }
