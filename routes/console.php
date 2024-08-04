@@ -8,5 +8,5 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote')->hourly();
 
-Schedule::command('sync:playermeta all 1')->everyTenMinutes();
+Schedule::command('sync:playermeta all 1')->everyFifteenMinutes();
  
