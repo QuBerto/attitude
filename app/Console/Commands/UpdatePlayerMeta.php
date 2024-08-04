@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\RSAccount;
+use App\Models\BingoCard;
 use App\Models\PlayerMeta;
 use App\Services\WiseOldManService; // Ensure this is the correct namespace for your service
 
@@ -21,18 +22,27 @@ class UpdatePlayerMeta extends Command
     {
         $id = $this->argument('id');
         if ($id == "all"){
-            $accs = RSAccount::all();
-            foreach($accs as $acc){
-           
-                if (!$acc) {
-                    $this->error("RSAccount with username '{$id}' not found.");
-                    return;
+            $bingo = BingoCard::find(1);
+            $this->info("Syncing players on bingocard {$bingo->name}");
+            foreach($bingo->teams as $team){
+                $this->info("Syncing {$team->name}");
+                foreach($team->users as $user){
+                    $this->info("Syncing {$user->nick}");
+                    foreach($user->rsAccounts as $account){
+                        $this->info("Syncing {$account->username}");
+                        if (!$account) {
+                            $this->error("RSAccount with username '{$id}' not found.");
+                            return;
+                        }
+                
+                
+                        $this->updatePlayerMeta($account);
+                        $this->info('Player meta data updated successfully.');
+                    }
+                    
                 }
-        
-        
-                $this->updatePlayerMeta($acc);
-                $this->info('Player meta data updated successfully.');
             }
+           
         }
         else{
             $acc = RSAccount::find($id)->first();
