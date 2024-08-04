@@ -7,8 +7,13 @@
         // Populate the data array with account data and calculate totals
         foreach ($team->users as $user) {
             foreach ($user->rsAccounts as $account) {
+              
                 foreach ($account->meta as $meta) {
-                    if ($meta->value != 0 && strpos($meta->key, '_kills_gained') !== false) {
+                    
+                    
+                    
+                    if ($meta->value != 0 && (strpos($meta->key, '_kills_gained') !== false || $meta->key == 'ehb_value_gained')) {
+                        
                         // Extract the key name and remove '_kills_gained'
                         $keyName = ucfirst(str_replace('_', ' ', str_replace('_kills_gained', '', $meta->key)));
                         
@@ -21,7 +26,7 @@
                         }
 
                         // Add the value to the data and totals arrays
-                        $data[$keyName][$account->username] = $meta->value;
+                        $data[$keyName][$account->username] = round($meta->value,1);
                         $totals[$keyName] += $meta->value;
                     }
                 }
@@ -66,7 +71,7 @@
                         </td>
                     @endforeach
                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-center text-sm font-medium text-white sm:pl-0 rs-font">
-                        {{ $totals[$keyName] }}
+                        {{ round($totals[$keyName], 1) }}
                     </td>
                 </tr>
             @endforeach
