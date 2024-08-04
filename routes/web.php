@@ -19,7 +19,7 @@ use App\Http\Controllers\ScreenshotController;
 
 
 Route::get('/bingo/{bingoCard}/progress/{team}', [BingoCardController::class, 'frontend_progress'])->name('frontend-progress');
-Route::get('/bingo/{bingoCard}', [BingoCardController::class, 'frontend']);
+Route::get('/bingo/{bingoCard}', [BingoCardController::class, 'frontend'])->name('frontend-overview');
 Route::get('/bingo/{bingoCard}/team/{team}', [BingoCardController::class, 'frontend_team'])->name('frontend-teams');
 Route::get('/members', [RSAccountController::class, 'frontend'])->name('frontend.members');
 //Route::get('/calendar', [RSAccountController::class, 'frontend'])->name('frontend.calendar');

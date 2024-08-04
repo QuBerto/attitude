@@ -93,4 +93,51 @@ class ScreenshotController extends Controller
             return response()->json(['error' => 'Error sending screenshot to Discord: ' . $e->getMessage()]);
         }
     }
+    public function sendImageToDiscord2($channel, $image, $threadId = null)
+{
+    // Path to the generated screenshot
+    $imagePath = $image;
+    
+    // Discord API settings
+    $threadId = 1269646607528366080;
+    $discordChannelId = 1269645507332935824;
+    $discordBotToken = env('DISCORD_BOT_TOKEN');
+    $message = '';
+    
+    // Initialize GuzzleHTTP client
+    $client = new Client();
+
+    try {
+        // Construct the URL
+        $url = "https://discord.com/api/v9/channels/{$discordChannelId}/messages";
+        if ($threadId) {
+            $url = "https://discord.com/api/v9/channels/{$discordChannelId}/threads/{$threadId}/messages";
+        }
+
+        $response = $client->post($url, [
+            'headers' => [
+                'Authorization' => "Bot {$discordBotToken}",
+            ],
+            'multipart' => [
+                [
+                    'name'     => 'file',
+                    'contents' => fopen($imagePath, 'r'),
+                    'filename' => basename($imagePath),
+                ],
+                [
+                    'name'     => 'payload_json',
+                    'contents' => json_encode(['content' => $message]),
+                ]
+            ],
+        ]);
+
+        if ($response->getStatusCode() == 200) {
+            return response()->json(['message' => 'Screenshot sent to Discord successfully']);
+        } else {
+            return response()->json(['error' => 'Error sending screenshot to Discord'], $response->getStatusCode());
+        }
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error sending screenshot to Discord: ' . $e->getMessage()]);
+    }
+}
 }

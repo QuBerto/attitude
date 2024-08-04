@@ -1,10 +1,10 @@
 
 @php
 if(isset($team)){
-    echo '<h2 style="text-align:center; " class="bingotile w-full">'.$team->name.'</h2>';
+    echo '<h2 style="text-align:center; font-size:60px!important; line-heigth:100px!important; " class="bingotile w-full">'.$team->name.'</h2>';
 }
 @endphp
-<div class="grid grid-cols-5 gap-4">
+<div class="grid grid-cols-5 gap-4 w-full">
  
     @foreach($bingoCard->tiles as $tile)
         @php
@@ -21,11 +21,11 @@ if(isset($team)){
     @endforeach
 </div>
 <div>
-@isset($team)
+@if(!$bingoglobal)
 @foreach($team->users as $user)
 <span class="inline-block mb-2 bg-gray-700 rounded-full px-3 py-1 text-sm font-semibold text-gray-300 mr-2">
     {{ $user->nick }}
 </span>
 @endforeach
-@endisset
+@endif
 </div>

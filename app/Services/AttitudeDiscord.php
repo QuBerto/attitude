@@ -1,5 +1,7 @@
 <?php
 namespace App\Services;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 
 
 class AttitudeDiscord
@@ -8,12 +10,20 @@ class AttitudeDiscord
     public $guildId;
     private $token;
     private $rolId;
+    private $client;
 
     public function __construct($guildId, $token)
     {
         $this->guildId = $guildId;
         $this->token = $token;
         $this->rolId = '1233119240496873616';
+        $this->client = new Client([
+            'base_uri' => 'https://discord.com/api/v9/',
+            'headers' => [
+                'Authorization' => "Bot {$this->token}",
+                'Content-Type' => 'application/json'
+            ],
+        ]);
     }
 
     public function connect($endpoint)
@@ -106,6 +116,7 @@ class AttitudeDiscord
         foreach ($data as $member) {
             if (isset($member['roles']) && in_array($this->rolId, $member['roles'])) {
                 $i++;
+                $memberId = false;
                 if ($i == $index) {
                     if ($member['nick']) {
                         $pattern = '/\s*\p{So}+\(\d+\)/u';
@@ -297,4 +308,99 @@ class AttitudeDiscord
         // Member roles updated successfully
         return true;
     }
+
+    
+    public function fetchMessages($channel, $limit = 100, $logger = null)
+    {
+        try {
+            $response = $this->client->get("channels/{$channel}/messages", [
+                'query' => [
+                    'limit' => $limit,
+                ],
+            ]);
+            if ($logger) {
+                $logger->info("Fetched messages from channel {$channel}");
+            }
+            return json_decode($response->getBody()->getContents(), true);
+        } catch (ClientException $e) {
+            if ($e->getResponse()->getStatusCode() == 429) {
+                $retryAfter = $e->getResponse()->getHeader('Retry-After')[0];
+                if ($logger) {
+                    $logger->info("Rate limited. Retrying after {$retryAfter} seconds");
+                }
+                sleep($retryAfter);
+                return $this->fetchMessages($channel, $limit, $logger);
+            }
+            throw $e;
+        }
+    }
+
+    public function deleteMessage($channel, $messageId, $logger = null)
+    {
+        try {
+            $response = $this->client->delete("channels/{$channel}/messages/{$messageId}");
+            if ($response->getStatusCode() === 204 && $logger) {
+                $logger->info("Deleted message {$messageId} in channel {$channel}");
+            }
+            return $response->getStatusCode() === 204;
+        } catch (ClientException $e) {
+            if ($e->getResponse()->getStatusCode() == 429) {
+                $retryAfter = $e->getResponse()->getHeader('Retry-After')[0];
+                if ($logger) {
+                    $logger->info("Rate limited. Retrying after {$retryAfter} seconds");
+                }
+                sleep($retryAfter);
+                return $this->deleteMessage($channel, $messageId, $logger);
+            }
+            throw $e;
+        }
+    }
+
+    public function deleteMessagesByUser($channel, $userId, $limit = 100, $logger = null)
+    {
+        $messages = $this->fetchMessages($channel, $limit, $logger);
+        foreach ($messages as $message) {
+            if ($message['author']['id'] == $userId) {
+                $this->deleteMessage($channel, $message['id'], $logger);
+            }
+        }
+    }
+
+    public function sendImageToDiscord($channel, $imagePath, $logger = null)
+    {
+        try {
+            $url = "channels/{$channel}/messages";
+
+            $response = $this->client->post($url, [
+                'multipart' => [
+                    [
+                        'name'     => 'file',
+                        'contents' => fopen($imagePath, 'r'),
+                        'filename' => basename($imagePath),
+                    ],
+                    [
+                        'name'     => 'payload_json',
+                        'contents' => json_encode(['content' => '']),
+                    ]
+                ],
+            ]);
+
+            if ($response->getStatusCode() === 200 && $logger) {
+                $logger->info('Screenshot sent to Discord successfully');
+            }
+            return $response->getStatusCode() === 200;
+        } catch (ClientException $e) {
+            if ($e->getResponse()->getStatusCode() == 429) {
+                $retryAfter = $e->getResponse()->getHeader('Retry-After')[0];
+                if ($logger) {
+                    $logger->info("Rate limited. Retrying after {$retryAfter} seconds");
+                }
+                sleep($retryAfter);
+                return $this->sendImageToDiscord($channel, $imagePath, $logger);
+            }
+            throw $e;
+        }
+    }
+
+
 }
