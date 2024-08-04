@@ -51,8 +51,8 @@
                                             <input id="task-description-{{ $task->id }}-{{ $team->id }}" class="task-description bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 " type="text" name="description" value="{{ $completion->description ?? '' }}">
                                         </td>
                                         <td class="border px-4 py-2">
-                                            <button class="task-action-button bg-green-500 text-white px-4 py-2 rounded" data-task-id="{{ $task->id }}" data-team-id="{{ $team->id }}" data-action="{{ $completion ? 'undo' : 'complete' }}">
-                                                {{ $completion ? __('Undo') : __('Complete Task') }}
+                                            <button class="task-action-button bg-green-500 text-white px-4 py-2 rounded" data-task-id="{{ $task->id }}" data-team-id="{{ $team->id }}" data-action="complete">
+                                                {{ $completion ? __('Save                                                                                               ') : __('Complete Task') }}
                                             </button>
                                         </td>
                                     </tr>
