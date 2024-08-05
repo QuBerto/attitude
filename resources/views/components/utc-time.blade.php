@@ -1,4 +1,4 @@
-<div class="flex justify-between items-center text-white w-full text-sm mt-6">
+<div class="flex justify-between items-center text-gray-300 w-full text-sm mt-6">
     <div class="flex items-center">
         <!-- Discord logo SVG -->
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 245 240" class="w-6 h-6 mr-2" fill="#7289DA">
