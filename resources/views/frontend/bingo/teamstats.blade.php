@@ -55,24 +55,24 @@
             <tr>
                 <th></th>
                 @foreach ($usernames as $username)
-                    <th class="py-3.5 pl-4 pr-3 text-left text-center text-sm rs-yellow sm:pl-0">{{ $username }}</th>
+                    <th class="py-3.5 pl-4 pr-3 text-left text-center  rs-yellow sm:pl-0">{{ $username }}</th>
                 @endforeach
-                <th class="py-3.5 pl-4 pr-3 text-left text-sm sm:pl-0 text-center">Total</th>
+                <th class="py-3.5 pl-4 pr-3 text-left  sm:pl-0 text-center">Total</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-800">
             @foreach ($sortedKeys as $keyName)
                 <tr>
-                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">{{ $keyName }}</td>
+                    <td class="whitespace-nowrap py-4 pl-4 pr-3  font-medium text-white sm:pl-0">{{ $keyName }}</td>
                     @foreach ($usernames as $username)
                         @php
                             $class = isset($data[$keyName][$username]) ? ' text-white' : '';
                         @endphp
-                        <td class="whitespace-nowrap py-4 text-center pl-4 pr-3 text-sm font-medium sm:pl-0 text-white {{ $class }}">
+                        <td class="whitespace-nowrap py-4 text-center pl-4 pr-3  font-medium sm:pl-0 text-white {{ $class }}">
                             {{ $data[$keyName][$username] ?? "-" }}
                         </td>
                     @endforeach
-                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-center text-sm font-medium text-white sm:pl-0">
+                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-center  font-medium text-white sm:pl-0">
                         {{ round($totals[$keyName], 1) }}
                     </td>
                 </tr>
