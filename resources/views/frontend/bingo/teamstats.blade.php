@@ -7,16 +7,15 @@
         // Populate the data array with account data and calculate totals
         foreach ($team->users as $user) {
             foreach ($user->rsAccounts as $account) {
-              
                 foreach ($account->meta as $meta) {
-                    
-                    
-                    
                     if ($meta->value != 0 && (strpos($meta->key, '_kills_gained') !== false || $meta->key == 'ehb_value_gained')) {
-                        
-                        // Extract the key name and remove '_kills_gained'
-                        $keyName = ucfirst(str_replace('_', ' ', str_replace('_kills_gained', '', $meta->key)));
-                        
+                        // Extract the key name and rename ehb_value_gained to EHB
+                        if ($meta->key == 'ehb_value_gained') {
+                            $keyName = 'EHB';
+                        } else {
+                            $keyName = ucfirst(str_replace('_', ' ', str_replace('_kills_gained', '', $meta->key)));
+                        }
+
                         // Initialize the arrays if not already set
                         if (!isset($data[$keyName])) {
                             $data[$keyName] = [];
@@ -26,7 +25,7 @@
                         }
 
                         // Add the value to the data and totals arrays
-                        $data[$keyName][$account->username] = round($meta->value,1);
+                        $data[$keyName][$account->username] = round($meta->value, 1);
                         $totals[$keyName] += $meta->value;
                     }
                 }
@@ -41,6 +40,14 @@
             }
         }
         $usernames = array_unique($usernames);
+
+        // Sort the keys alphabetically but put EHB first
+        $sortedKeys = array_keys($data);
+        usort($sortedKeys, function($a, $b) {
+            if ($a == 'EHB') return -1;
+            if ($b == 'EHB') return 1;
+            return strcmp($a, $b);
+        });
     @endphp
 
     <table class="min-w-full divide-y divide-gray-700">
@@ -48,34 +55,28 @@
             <tr>
                 <th></th>
                 @foreach ($usernames as $username)
-                    <th class="py-3.5 pl-4 pr-3 text-left text-center text-sm rs-yellow sm:pl-0 ">{{ $username }}</th>
+                    <th class="py-3.5 pl-4 pr-3 text-left text-center text-sm rs-yellow sm:pl-0">{{ $username }}</th>
                 @endforeach
-                <th class="py-3.5 pl-4 pr-3 text-left text-sm  sm:pl-0 text-center  ">Total</th>
+                <th class="py-3.5 pl-4 pr-3 text-left text-sm sm:pl-0 text-center">Total</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-800">
-            @foreach ($data as $keyName => $values)
+            @foreach ($sortedKeys as $keyName)
                 <tr>
-                    <td class="whitespace-nowrap py-4  pl-4 pr-3 text-sm font-medium text-white sm:pl-0">{{ $keyName }}</td>
+                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">{{ $keyName }}</td>
                     @foreach ($usernames as $username)
                         @php
-                        $class = '';
+                            $class = isset($data[$keyName][$username]) ? ' text-white' : '';
                         @endphp
-                        @isset ($values[$username])
-                            @php
-                            $class = ' text-white'
-                            @endphp
-                        @endisset
-                        <td class="whitespace-nowrap py-4 text-center pl-4 pr-3 text-sm font-medium sm:pl-0  text-white {{$class}}">
-                            {{ $values[$username] ?? "-" }}
+                        <td class="whitespace-nowrap py-4 text-center pl-4 pr-3 text-sm font-medium sm:pl-0 text-white {{ $class }}">
+                            {{ $data[$keyName][$username] ?? "-" }}
                         </td>
                     @endforeach
-                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-center text-sm font-medium text-white sm:pl-0 ">
+                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-center text-sm font-medium text-white sm:pl-0">
                         {{ round($totals[$keyName], 1) }}
                     </td>
                 </tr>
             @endforeach
         </tbody>
     </table>
-    
 @endisset
