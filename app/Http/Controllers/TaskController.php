@@ -7,7 +7,10 @@ use App\Models\Tile;
 use App\Models\BingoCard;
 use Illuminate\Http\Request;
 use App\Models\TaskCompletion;
-use App\Models\DiscordUser;
+use Illuminate\Support\Facades\Http;
+
+
+
 class TaskController extends Controller
 {
     public function index()
@@ -23,16 +26,39 @@ class TaskController extends Controller
         $request->validate([
             'discord_user_id' => 'required|exists:discord_users,id',
             'team_id' => 'required|exists:teams,id',
-           
+        //    'item_id' => 'int',
         ]);
-
+        // $img =        $this->fetchItemImage($request->input('item_Id'));
+        // dd($img);
         TaskCompletion::updateOrCreate(
             ['task_id' => $task->id, 'team_id' => $request->input('team_id')],
             ['discord_user_id' => $request->input('discord_user_id'),
-             'description' => $request->input('description')]
+             'description' => $request->input('description'),
+             'item_id' =>  $request->input('item_id')]
         );
+   
 
         return response()->json(['success' => true]);
+    }
+
+    public function fetchItemImage($itemId)
+    {
+        // Fetch item data from the OSRS Wiki API
+        $response = Http::get("https://api.osrsbox.com/items/{$itemId}");
+
+        if ($response->successful()) {
+            $itemData = $response->json();
+            $imageUrl = $itemData['icon'];
+
+            return $imageUrl;
+        }
+
+        return null;
+    }
+
+    public function saveItemImageToModel(TaskCompletion $taskCompletion, $imageUrl)
+    {
+        $taskCompletion->addMediaFromUrl($imageUrl)->toMediaCollection('images');
     }
 
     public function store(Request $request)

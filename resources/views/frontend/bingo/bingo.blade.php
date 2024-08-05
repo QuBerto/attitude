@@ -24,6 +24,7 @@ $bingoglobal = false;
                 <div id="drops-card"
                     class="rounded-lg bg-white p-6 shadow-[0px_14px_34px_0px_rgba(0,0,0,0.08)] ring-1 ring-white/[0.05] transition duration-300 hover:text-black/70 hover:ring-black/20 focus:outline-none focus-visible:ring-[#FF2D20] lg:pb-10 bg-zinc-900 ring-zinc-800 hover:text-white/70 hover:ring-zinc-700 focus-visible:ring-[#FF2D20]">
                     @include('frontend.bingo.drops')
+                    <div class="text-white  w-full">It could take up to 6 hours after you logout before your kills will show up. To speed up this proces, update your account on the wise old mand website.</div>
                     <x-utc-time />
                 </div>
 
@@ -49,6 +50,7 @@ $bingoglobal = false;
                     @include('frontend.bingo.card')
                 </div>
             @endforeach
+            
             <x-utc-time />
         </div>
         

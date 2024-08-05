@@ -4,13 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class TaskCompletion extends Model
+
+class TaskCompletion extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     protected $fillable = [
-        'task_id', 'discord_user_id', 'team_id', 'description'
+        'task_id', 'discord_user_id', 'team_id', 'description', 'item_id'
     ];
 
     public function task()
