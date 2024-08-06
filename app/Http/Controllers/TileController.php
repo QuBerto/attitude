@@ -18,8 +18,10 @@ class TileController extends Controller
         $tile->title = $request->input('title');
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('tiles', 'public');
-            $tile->image = $path;
+            $tile->clearMediaCollection('tiles');
+            $tile
+            ->addMedia($request->file('image'))
+               ->toMediaCollection('tiles');
         }
 
         $tile->save();
