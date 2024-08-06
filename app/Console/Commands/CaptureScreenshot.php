@@ -7,7 +7,7 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use App\Models\Team;
 use App\Models\BingoCard;
 use App\Services\AttitudeDiscord;
-
+use Carbon\Carbon;
 class CaptureScreenshot extends Command
 {
     protected $signature = 'capture:screenshot {bingo} {team_id?}';
@@ -62,8 +62,10 @@ class CaptureScreenshot extends Command
                 $last_image = $team->getMeta('last_image');
                 $last_update = $team->getMeta('last_update');
                 if (!$last_image || $last_image < $last_update){
+                    $this->info("Time to update image (last image){$last_image} < {$last_update}(last update)");
                     $this->handleTeam($bingo, $team);
                 }
+                $last_update = $team->updateMeta('last_image',Carbon::now()->toDateTimeString());
                 
             }
         }
