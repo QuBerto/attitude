@@ -59,7 +59,12 @@ class CaptureScreenshot extends Command
             }
         } else {
             foreach ($bingo->teams as $team) {
-                $this->handleTeam($bingo, $team);
+                $last_image = $team->getMeta('last_image');
+                $last_update = $team->getMeta('last_update');
+                if (!$last_image || $last_image < $last_update){
+                    $this->handleTeam($bingo, $team);
+                }
+                
             }
         }
     }

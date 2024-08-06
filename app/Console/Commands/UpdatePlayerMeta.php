@@ -1,12 +1,16 @@
 <?php
-namespace App\Console\Commands;
 
+namespace App\Console\Commands;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Console\Command;
 use App\Models\RSAccount;
 use App\Models\BingoCard;
 use App\Models\PlayerMeta;
 use App\Services\WiseOldManService; // Ensure this is the correct namespace for your service
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
+
 
 class UpdatePlayerMeta extends Command
 {
@@ -28,7 +32,7 @@ class UpdatePlayerMeta extends Command
                 $this->error("Bingo Card ID is required when syncing all players.");
                 return;
             }
-            
+
             $bingo = BingoCard::find($bingoCardId);
             if (!$bingo) {
                 $this->error("Bingo Card with ID '{$bingoCardId}' not found.");
@@ -76,10 +80,10 @@ class UpdatePlayerMeta extends Command
     protected function updatePlayerMeta(RSAccount $acc)
     {
         $wise = new WiseOldManService();
-        $data = $wise->getPlayerGain($acc->username);
+        $response = $wise->getPlayerGain($acc->username);
 
         // Assuming $response is already an array
-        $data = $data->getData();
+        $data = $response->getData();
 
         // Check if the response was successful
         if ($data->success) {
@@ -88,7 +92,41 @@ class UpdatePlayerMeta extends Command
             $endsAt = $data->data->endsAt;
             $data = $data->data->data;
 
-        
+            // Serialize the data and generate a hash
+            $serializedData = serialize($data);
+            $dataHash = Hash::make($serializedData);
+
+            // Check if the hash has changed
+            $existingHash = PlayerMeta::where('r_s_accounts_id', $acc->id)
+                ->where('key', 'data_hash')
+                ->value('value');
+            
+            if ($existingHash && Hash::check($serializedData, $existingHash)) {
+                $this->info('Data didnt change, skipping');
+                // Skip updating if the hash matches
+                return;
+            }
+
+            // Update the hash in PlayerMeta
+            PlayerMeta::updateOrCreate(
+                ['r_s_accounts_id' => $acc->id, 'key' => 'data_hash'],
+                ['value' => $dataHash]
+            );
+
+            // Update the last updated time
+            PlayerMeta::updateOrCreate(
+                ['r_s_accounts_id' => $acc->id, 'key' => 'last_update'],
+                ['value' => Carbon::now()->toDateTimeString()]
+            );
+
+            $acc->discordUser->teams[0]->updateMeta('last_update',Carbon::now()->toDateTimeString());
+            $teamId = $acc->discordUser->teams[0]->id;
+            // Define the cache key
+            $cacheKey = "team_data_{$teamId}";
+
+            // Delete the cache key
+            Cache::forget($cacheKey);
+            // Store or update the meta data
             foreach ($data as $category => $details) {
                 foreach ($details as $metric => $detail) {
                     foreach ($detail as $key => $values) {
@@ -101,7 +139,6 @@ class UpdatePlayerMeta extends Command
                                 $item = 0;
                             }
                             $keyname = "{$metric}_{$key}_{$label}";
-                            // Store or update the meta data
                             PlayerMeta::updateOrCreate(
                                 ['r_s_accounts_id' => $acc->id, 'key' => $keyname],
                                 ['value' => $item]

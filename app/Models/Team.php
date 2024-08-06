@@ -32,5 +32,28 @@ class Team extends Model
 
         return $taskIds->diff($completedTaskIds)->isEmpty();
     }
+
+    
+    public function metas()
+    {
+        return $this->hasMany(TeamMeta::class);
+    }
+    public function getMeta($key, $default = null)
+    {
+        $meta = $this->metas()->where('key', $key)->first();
+        return $meta ? $meta->value : $default;
+    }
+
+    public function updateMeta($key, $value)
+    {
+        $meta = $this->metas()->where('key', $key)->first();
+
+        if ($meta) {
+            $meta->update(['value' => $value]);
+        } else {
+            $this->metas()->create(['key' => $key, 'value' => $value]);
+        }
+    }
+
 }
 

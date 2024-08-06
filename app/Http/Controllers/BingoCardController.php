@@ -4,8 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BingoCard;
 use App\Models\DiscordUser;
-use App\Models\PlayerMeta;
-use App\Models\RSAccount;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use App\Models\Team;
 use App\Services\AttitudeDiscord;
@@ -82,7 +81,67 @@ class BingoCardController extends Controller
     }
     public function frontend_team(BingoCard $bingoCard, Team $team)
     {
-        return view('frontend.bingo.bingo', compact('bingoCard', 'team'));
+        $teamId = $team->id;
+         // Define a unique cache key for the team data
+        $cacheKey = "team_data_{$team->id}";
+       
+        // Try to get the data from the cache
+        $teamData = Cache::remember($cacheKey, 60, function () use ($teamId) {
+            $team = Team::with('users.rsAccounts.metas')->findOrFail($teamId);
+
+            // Initialize arrays to hold the data and totals
+            $data = [];
+            $totals = [];
+
+            // Populate the data array with account data and calculate totals
+            foreach ($team->users as $user) {
+                foreach ($user->rsAccounts as $account) {
+                    foreach ($account->metas as $meta) {
+                        if ($meta->value != 0 && (strpos($meta->key, '_kills_gained') !== false || $meta->key == 'ehb_value_gained')) {
+                            // Extract the key name and rename ehb_value_gained to EHB
+                            if ($meta->key == 'ehb_value_gained') {
+                                $keyName = 'EHB';
+                            } else {
+                                $keyName = ucfirst(str_replace('_', ' ', str_replace('_kills_gained', '', $meta->key)));
+                            }
+
+                            // Initialize the arrays if not already set
+                            if (!isset($data[$keyName])) {
+                                $data[$keyName] = [];
+                            }
+                            if (!isset($totals[$keyName])) {
+                                $totals[$keyName] = 0;
+                            }
+
+                            // Add the value to the data and totals arrays
+                            $data[$keyName][$account->username] = round($meta->value, 1);
+                            $totals[$keyName] += $meta->value;
+                        }
+                    }
+                }
+            }
+
+            // Get all account usernames
+            $usernames = [];
+            foreach ($team->users as $user) {
+                foreach ($user->rsAccounts as $account) {
+                    $usernames[] = $account->username;
+                }
+            }
+            $usernames = array_unique($usernames);
+
+            // Sort the keys alphabetically but put EHB first
+            $sortedKeys = array_keys($data);
+            usort($sortedKeys, function($a, $b) {
+                if ($a == 'EHB') return -1;
+                if ($b == 'EHB') return 1;
+                return strcmp($a, $b);
+            });
+
+            // Return the data in an array
+            return compact('data', 'totals', 'usernames', 'sortedKeys');
+        });
+        return view('frontend.bingo.bingo', compact('bingoCard', 'team', 'teamData'));
     }
 
     public function frontend_progress($bingocard, $team){

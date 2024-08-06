@@ -43,15 +43,26 @@ class RSAccount extends Model
     }
 
      // Define the relationship
-     public function meta()
+     public function metas()
     {
         return $this->hasMany(PlayerMeta::class, 'r_s_accounts_id');
     }
  
-     // Define a helper method to get meta by key
-     public function getMeta($key)
-     {
-         return $this->meta()->where('key', $key)->first();
-     }
+    public function getMeta($key, $default = null)
+    {
+        $meta = $this->metas()->where('key', $key)->first();
+        return $meta ? $meta->value : $default;
+    }
+
+    public function updateMeta($key, $value)
+    {
+        $meta = $this->metas()->where('key', $key)->first();
+
+        if ($meta) {
+            $meta->update(['value' => $value]);
+        } else {
+            $this->metas()->create(['key' => $key, 'value' => $value]);
+        }
+    }
     
 }

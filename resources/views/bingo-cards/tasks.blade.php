@@ -56,7 +56,7 @@
                                         </td>
                                         <td class="border px-4 py-2">
                                             <button class="task-action-button bg-green-500 text-white px-4 py-2 rounded" data-task-id="{{ $task->id }}" data-team-id="{{ $team->id }}" data-action="complete">
-                                                {{ $completion ? __('Save                                                                                               ') : __('Complete Task') }}
+                                                {{ $completion ? __('Save ') : __('Complete Task') }}
                                             </button>
                                         </td>
                                     </tr>
@@ -70,48 +70,73 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.task-action-button').forEach(button => {
-                button.addEventListener('click', function () {
-                    const taskId = this.dataset.taskId;
-                    const teamId = this.dataset.teamId;
-                    const action = this.dataset.action;
-                    const itemInput = document.getElementById(`task-item-id-${taskId}-${teamId}`);
-                    const item = itemInput ? itemInput.value : '';
-                    const descriptionInput = document.getElementById(`task-description-${taskId}-${teamId}`);
-                    const description = descriptionInput ? descriptionInput.value : '';
-                    const userSelect = document.querySelector(`.user-select[data-task-id="${taskId}"][data-team-id="${teamId}"]`);
-                    const userId = userSelect.value;
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.task-action-button').forEach(button => {
+        button.addEventListener('click', function () {
+            const taskId = this.dataset.taskId;
+            const teamId = this.dataset.teamId;
+            var action = this.dataset.action;
+            const itemInput = document.getElementById(`task-item-id-${taskId}-${teamId}`);
+            const item = itemInput ? itemInput.value : '';
+            const descriptionInput = document.getElementById(`task-description-${taskId}-${teamId}`);
+            const description = descriptionInput ? descriptionInput.value : '';
+            const userSelect = document.querySelector(`.user-select[data-task-id="${taskId}"][data-team-id="${teamId}"]`);
+            const userId = userSelect ? userSelect.value : null;
 
-                    if (!userId && action === 'complete') {
-                        alert('Please select a user.');
-                        return;
-                    }
+            if (!userId && action === 'complete') {
+                action = 'delete';
+            }
 
-                    fetch(`{{env('APP_URL')}}/tasks/${taskId}/${action}`, {
-                        method: 'POST',
+            if (action === 'delete' && !userId) {
+                if (confirm('Are you sure you want to delete this task completion?')) {
+                    fetch(`{{env('APP_URL')}}/tasks/${taskId}/delete`, {
+                        method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
                         body: JSON.stringify({
-                            discord_user_id: userId,
-                            team_id: teamId,
-                            item_id: item,
-                            description: description
+                            team_id: teamId
                         })
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert(`Task ${action === 'complete' ? 'completed' : 'undone'} successfully!`);
+                            alert('Task completion deleted successfully!');
                             location.reload();
                         } else {
-                            alert(`Error ${action === 'complete' ? 'completing' : 'undoing'} task.`);
+                            alert('Error deleting task completion.');
                         }
                     });
-                });
+                }
+                return;
+            }
+
+            fetch(`{{env('APP_URL')}}/tasks/${taskId}/${action}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    discord_user_id: userId,
+                    team_id: teamId,
+                    item_id: item,
+                    description: description
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`Task ${action === 'complete' ? 'completed' : 'undone'} successfully!`);
+                    location.reload();
+                } else {
+                    alert(`Error ${action === 'complete' ? 'completing' : 'undoing'} task.`);
+                }
             });
         });
+    });
+});
+
     </script>
 </x-app-layout>
