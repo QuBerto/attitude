@@ -86,7 +86,7 @@ class BingoCardController extends Controller
         $cacheKey = "team_data_{$team->id}";
        
         // Try to get the data from the cache
-        $teamData = Cache::remember($cacheKey, 60, function () use ($teamId) {
+        $teamData = Cache::remember($cacheKey, 600, function () use ($teamId) {
             $team = Team::with('users.rsAccounts.metas')->findOrFail($teamId);
 
             // Initialize arrays to hold the data and totals

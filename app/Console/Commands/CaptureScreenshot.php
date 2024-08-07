@@ -64,8 +64,9 @@ class CaptureScreenshot extends Command
                 if (!$last_image || $last_image < $last_update){
                     $this->info("Time to update image (last image){$last_image} < {$last_update}(last update)");
                     $this->handleTeam($bingo, $team);
+                    $team->updateMeta('last_image',Carbon::now()->toDateTimeString());
                 }
-                $last_update = $team->updateMeta('last_image',Carbon::now()->toDateTimeString());
+                
                 
             }
         }
