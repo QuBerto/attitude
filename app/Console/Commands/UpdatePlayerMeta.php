@@ -95,16 +95,22 @@ class UpdatePlayerMeta extends Command
             // Serialize the data and generate a hash
             $serializedData = serialize($data);
             $dataHash = Hash::make($serializedData);
+            $xp = data_get($data, 'skills.overall.experience.end', null);
 
+            // Use $xp as needed
+            if ($xp !== null) {
+                
+            } else {
+                $this->info('Experience end date is not available.');
+                return;
+            }
             // Check if the hash has changed
-            $existingHash = PlayerMeta::where('r_s_accounts_id', $acc->id)
-                ->where('key', 'data_hash')
+            $existingXp = PlayerMeta::where('r_s_accounts_id', $acc->id)
+                ->where('key', 'overall_experience_end')
                 ->value('value');
             
-            if ($existingHash && Hash::check($serializedData, $existingHash)) {
+            if ($existingXp && ($existingXp == $xp)) {
                 $this->info('Data didnt change, skipping');
-                $this->info($existingHash);
-                $this->info( Hash::check($serializedData, $existingHash));
                 // Skip updating if the hash matches
                 return;
             }
