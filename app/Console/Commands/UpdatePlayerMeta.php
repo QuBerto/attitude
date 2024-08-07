@@ -103,6 +103,8 @@ class UpdatePlayerMeta extends Command
             
             if ($existingHash && Hash::check($serializedData, $existingHash)) {
                 $this->info('Data didnt change, skipping');
+                $this->info($existingHash);
+                $this->info( Hash::check($serializedData, $existingHash));
                 // Skip updating if the hash matches
                 return;
             }
