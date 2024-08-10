@@ -71,7 +71,11 @@
                                             }
                                         }
                                     @endphp
+                                    @if($kills)
                                     {{ $kills }}
+                                    @else
+                                    -
+                                    @endif
                                 </td>
                             @endif
                         @endforeach
