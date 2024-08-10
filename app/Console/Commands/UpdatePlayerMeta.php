@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 
 
+use Illuminate\Support\Facades\DB;
 
 class UpdatePlayerMeta extends Command
 {
@@ -40,22 +41,117 @@ class UpdatePlayerMeta extends Command
                 return;
             }
 
+            // Generate the same cache key used when storing the boss list
+            $cacheKey = 'bingo_card_' . $bingoCardId . '_bossList';
+
+            // Attempt to retrieve the cached boss list
+            $bossList = Cache::get($cacheKey);
+
+            if (!$bossList) {
+                // Fetch distinct bosses and cache the result for 24 hours
+                $distinctBosses = DB::table('tiles')
+                ->select(DB::raw('DISTINCT JSON_UNQUOTE(JSON_EXTRACT(bosses, "$[*]")) as boss'))
+                ->whereNotNull('bosses')
+                ->where('bingo_card_id', $bingoCardId)
+                ->get();
+
+                $bossList = collect($distinctBosses)->flatMap(function($item) {
+                    return json_decode($item->boss, true);
+                })->unique();
+            } 
+            $bossList = $bossList->toArray(); // Convert the Collection to an array
             $this->info("Syncing players on bingocard {$bingo->name}");
+            $teamsData = [
+                'bingo_id' => $bingo->id,
+                'bingo_name' => $bingo->name,
+            ];
             foreach ($bingo->teams as $team) {
+                $teamData = [
+                    'team_id' => $team->id,
+                    'team_name' => $team->name,
+                    'data' => [], // Initialize the data array
+                    'total_kills' => [] // To hold total kills for this team
+                ];
                 foreach ($team->users as $user) {
                     $this->info("Syncing {$user->nick}");
                     foreach ($user->rsAccounts as $account) {
                         $this->info("Syncing {$account->username}");
+                        
                         if (!$account) {
                             $this->error("RSAccount with username '{$account->username}' not found.");
                             continue;
                         }
-
-                        $this->updatePlayerMeta($account);
+                        
+                        $result = $this->updatePlayerMeta($account, $bossList);
+                        if (is_array($result)){
+                            $playerData = [
+                                'account_id' => $account->id,
+                                'username' => $account->username,
+                                'data' => $result,
+                            ];
+                            $teamData['data'][] = $playerData;
+                        }
+                        
                         $this->info('Player meta data updated successfully.');
                     }
                 }
+                $teamsData[] = $teamData;
             }
+            
+            // Initialize arrays to store totals
+            $teamKills = [];
+            $totalKills = [];
+            
+            // Loop through each team in teamsData
+            foreach ($teamsData as &$team) {
+                // Skip if this is the bingo card metadata (bingo_id, bingo_name)
+                if (!isset($team['team_id'])) {
+                    continue;
+                }
+                
+                $teamName = $team['team_name'];
+            
+                // Initialize the array for this team's kills
+                $teamKills[$teamName] = [];
+            
+                // Loop through each player in the team
+                foreach ($team['data'] as $player) {
+                    // Loop through each boss in the player's data
+                    foreach ($player['data'] as $boss => $kills) {
+                        // Add to the team's total for this boss
+                        if (!isset($teamKills[$teamName][$boss])) {
+                            $teamKills[$teamName][$boss] = 0;
+                        }
+                        $teamKills[$teamName][$boss] += $kills;
+            
+                        // Add to the overall total for this boss
+                        if (!isset($totalKills[$boss])) {
+                            $totalKills[$boss] = 0;
+                        }
+                        $totalKills[$boss] += $kills;
+                    }
+                }
+            
+                // Add the team's aggregated boss kills back to the team's data
+                $team['total_kills'] = $teamKills[$teamName];
+            }
+            
+            // Optionally, add the total kills across all teams to the $teamsData array
+            $teamsData['total_kills_all'] = $totalKills;
+            // Generate a cache key with the bingo ID
+            $cacheKey = "bingo_{$bingo->id}_teams_data";
+
+            // Save the result in the cache for 24 hours
+            Cache::put($cacheKey, $teamsData, now()->addHours(24));
+
+            // Optionally, retrieve the cached data
+            $cachedData = Cache::get($cacheKey);
+
+            // Output the cached data for debugging
+            $this->info("Cached Team Data:");
+            $this->line(print_r($cachedData, true));
+       
+
         } else {
             $acc = RSAccount::find($id);
             if (!$acc) {
@@ -80,7 +176,7 @@ class UpdatePlayerMeta extends Command
         
     }
 
-    protected function updatePlayerMeta(RSAccount $acc)
+    protected function updatePlayerMeta(RSAccount $acc, $bosslist = [])
     {
         $wise = new WiseOldManService();
         $response = $wise->getPlayerGain($acc->username);
@@ -99,7 +195,7 @@ class UpdatePlayerMeta extends Command
             $serializedData = serialize($data);
             $dataHash = Hash::make($serializedData);
             $xp = data_get($data, 'skills.overall.experience.end', null);
-            //$xp = 1000000000000000000000;
+            $xp = 1000000000000000000000;
             // Use $xp as needed
             if ($xp !== null) {
                 
@@ -111,11 +207,11 @@ class UpdatePlayerMeta extends Command
             $existingXp = PlayerMeta::where('r_s_accounts_id', $acc->id)
                 ->where('key', 'overall_experience_end')
                 ->value('value');
-            
+            $skip_saving = false;
             if ($existingXp && ($existingXp == $xp)) {
                 $this->info('Data didnt change, skipping');
                 // Skip updating if the hash matches
-                return;
+                $skip_saving = true;
             }
 
             // Update the hash in PlayerMeta
@@ -134,21 +230,19 @@ class UpdatePlayerMeta extends Command
             $teamId = $acc->discordUser->teams[0]->id;
             // Define the cache key
             $cacheKey = "team_data_{$teamId}";
-
+            $result = [];
             // Delete the cache key
             Cache::forget($cacheKey);
             // Store or update the meta data
             foreach ($data as $category => $details) {
                 foreach ($details as $metric => $detail) {
-                    if ($category == 'bosses'){
-                        // dd($detail);
-                        $this->info($metric);
-                    }
+                
                     
                     foreach ($detail as $key => $values) {
                         if ($key == 'metric') {
                             continue;
                         }
+                        
 
                         foreach ($values as $label => $item) {
                             
@@ -156,11 +250,17 @@ class UpdatePlayerMeta extends Command
                                 $item = 0;
                             }
                             $keyname = "{$metric}_{$key}_{$label}";
+                            if (!$skip_saving){
+                                PlayerMeta::updateOrCreate(
+                                    ['r_s_accounts_id' => $acc->id, 'key' => $keyname],
+                                    ['value' => $item]
+                                );
+                            }
                             
-                            PlayerMeta::updateOrCreate(
-                                ['r_s_accounts_id' => $acc->id, 'key' => $keyname],
-                                ['value' => $item]
-                            );
+                            if ($label == 'gained' && $key == 'kills' && $bosslist && in_array($metric, $bosslist) && $item){
+                                $result[$metric] =  $item;
+                                $this->info("{$metric}  key: {$key}  label {$label} {$item}In biss list");
+                            }
                         }
                         
                     }
@@ -168,6 +268,8 @@ class UpdatePlayerMeta extends Command
                 }
                 
             }
+            return $result;
+           
            
         } else {
             $this->error('Failed to retrieve data');

@@ -75,7 +75,7 @@ class CaptureScreenshot extends Command
     private function handleOverview(BingoCard $bingo)
     {
         $bingoId = $bingo->id;
-        $selectors = ['#docs-card'];
+        $selectors = ['#docs-card', '#boss-card'];
         $channel = self::CHANNEL_DATA['parent'];
 
         $this->discord->deleteMessagesByUser(self::CHANNEL_DATA['parent'], self::CHANNEL_DATA['bot_id'], 100, $this);

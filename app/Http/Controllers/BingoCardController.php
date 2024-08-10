@@ -76,22 +76,48 @@ class BingoCardController extends Controller
     public function frontend_temp()
     {
         $bingoCard = BingoCard::first();
-        return view('frontend.bingo.bingo', compact('bingoCard'));
+        $cacheKey = "bingo_{$bingoCard->id}_teams_data";
+        // Optionally, retrieve the cached data
+        $cachedData = Cache::get($cacheKey);
+        $teamsData = false;
+        if ($cachedData){
+            $teamsData = $cachedData;
+        }
+        
+        return view('frontend.bingo.bingo', compact('bingoCard', 'teamsData'));
     }
     public function frontend(BingoCard $bingoCard)
     {
-    
-        return view('frontend.bingo.bingo', compact('bingoCard'));
+        $bingoCard = BingoCard::first();
+        $cacheKey = "bingo_{$bingoCard->id}_teams_data";
+        // Optionally, retrieve the cached data
+        $cachedData = Cache::get($cacheKey);
+        $teamsData = false;
+        if ($cachedData){
+            $teamsData = $cachedData;
+        }
+        return view('frontend.bingo.bingo', compact('bingoCard', 'teamsData'));
     }
     public function frontend_team(BingoCard $bingoCard, Team $team)
     {
         $teamData = $this->team_data($team);
-        return view('frontend.bingo.bingo', compact('bingoCard', 'team', 'teamData'));
+        $cacheKey = "bingo_{$bingoCard->id}_teams_data";
+        // Optionally, retrieve the cached data
+        $cachedData = Cache::get($cacheKey);
+        $teamsData = false;
+        if ($cachedData){
+            $teamsData = $cachedData;
+        }
+        return view('frontend.bingo.bingo', compact('bingoCard', 'team', 'teamData', 'teamsData'));
     }
 
     public function frontend_progress($bingocard, $team){
         $bingo = (Team::find($bingocard));
         $team = (Team::find($team));
+        // Generate a cache key with the bingo ID
+  
+        
+       
         if (!$team || !$bingo){
             abort(404);
         }

@@ -16,9 +16,9 @@ class Team extends Model
         return $this->belongsToMany(DiscordUser::class, 'team_user');
     }
 
-    public function bingoCards()
+    public function bingoCard()
     {
-        return $this->belongsToMany(BingoCard::class, 'bingo_card_team');
+        return $this->belongsTo(BingoCard::class, 'bingo_card_team');
     }
 
     public function completions()
