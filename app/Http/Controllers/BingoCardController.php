@@ -46,7 +46,7 @@ class BingoCardController extends Controller
         $channels = $discord->listChannels();
         $wise = new WiseOldManService();
 
-        $bosses = array_merge($wise::BOSSES, $wise::ACTIVITIES);
+        $bosses = array_merge($wise::BOSSES, $wise::RAIDS, $wise::ACTIVITIES);
     
         // Return the view with the bingoCard and discordUsers
         return view('bingo-cards.show', compact('bingoCard', 'discordUsers', 'channels', 'bosses'));
