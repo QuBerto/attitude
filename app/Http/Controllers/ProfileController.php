@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\DiscordUser;
 use App\Http\Requests\ProfileUpdateRequest;
+use Discord\Discord;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,8 +17,12 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = Auth::user();
+        $discordUsers = DiscordUser::all();
+        //$discordUsers = $user->discordUsers;
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+            'discordUsers' => $discordUsers
         ]);
     }
 
@@ -56,5 +61,22 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    public function updateDiscordUser(Request $request)
+    {
+        $request->validate([
+            'discord_user_id' => 'required|exists:discord_users,id',
+        ]);
+
+        $user = Auth::user();
+        $duser = DiscordUser::find($request->discord_user_id);
+        $duser->user_id = $user->id;
+        $duser->save();
+
+
+        // Here you can perform any additional logic needed for updating the selected Discord user
+
+        return redirect()->route('profile.edit')->with('status', 'Discord user updated successfully!');
     }
 }

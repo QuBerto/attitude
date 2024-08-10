@@ -25,4 +25,9 @@ class DiscordUser extends Model
     {
         return $this->belongsToMany(DiscordRole::class, 'discord_user_role');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
