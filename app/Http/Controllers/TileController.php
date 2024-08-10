@@ -10,13 +10,15 @@ class TileController extends Controller
 {
     public function update(Request $request, Tile $tile)
     {
-        $request->validate([
+ 
+        $validatedData = $request->validate([
             'title' => 'required|string|max:255',
-            'image' => 'nullable|image',
+            "bosses.$tile->id" => 'array',
+            "bosses.$tile->id.*" => 'string'
         ]);
 
         $tile->title = $request->input('title');
-
+        $tile->bosses = json_encode($validatedData['bosses'][$tile->id]);
         if ($request->hasFile('image')) {
             $tile->clearMediaCollection('tiles');
             $tile

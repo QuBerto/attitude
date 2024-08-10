@@ -59,14 +59,19 @@
                         <label for="boss_{{ $tile->id }}" class="block font-medium text-sm text-gray-700 dark:text-gray-300">{{ __('Bosses') }}</label>
                         <ul id="boss-list_{{ $tile->id }}" class="mb-4 space-y-2">
                             @isset($tile->bosses)
-                            @foreach ($tile->bosses as $boss)
-                                <li class="flex justify-between items-center p-2 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm">
-                                    <span>{{ $boss }}</span>
-                                    <button type="button" class="remove-boss-button text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-600" data-task-id="{{ $task->id }}">
-                                        &times;
-                                    </button>
-                                </li>
-                            @endforeach
+                            @php
+                            $boss_data = json_decode($tile->bosses);
+                            @endphp
+                                @foreach ($boss_data as $boss)
+                                    <li class="flex justify-between items-center p-2 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm">
+                                        <span>{{ ucwords(str_replace('_', ' ', $boss)) }}</span>
+                                        <button type="button" class="remove-boss-button text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-600" data-tile-id="{{ $tile->id }}" data-boss="{{ $boss }}">
+                                            &times;
+                                        </button>
+                                        <input type="hidden" name="bosses[{{ $tile->id }}][]" value="{{ $boss }}">
+                                    </li>
+                                
+                                @endforeach
                             @endisset
                         </ul>
                         
@@ -83,6 +88,7 @@
                         </div>
                     </div>
                     <div class="flex items-center justify-end mt-4 w-full">
+                        
                         <button type="button" class="save-tile-button ml-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-bold py-2 px-4 rounded" data-tile-id="{{ $tile->id }}">
                             {{ __('Save') }}
                         </button>

@@ -141,7 +141,7 @@ class UpdatePlayerMeta extends Command
             foreach ($data as $category => $details) {
                 foreach ($details as $metric => $detail) {
                     if ($category == 'bosses'){
-                        dd($detail);
+                        // dd($detail);
                         $this->info($metric);
                     }
                     
@@ -157,10 +157,10 @@ class UpdatePlayerMeta extends Command
                             }
                             $keyname = "{$metric}_{$key}_{$label}";
                             
-                            // PlayerMeta::updateOrCreate(
-                            //     ['r_s_accounts_id' => $acc->id, 'key' => $keyname],
-                            //     ['value' => $item]
-                            // );
+                            PlayerMeta::updateOrCreate(
+                                ['r_s_accounts_id' => $acc->id, 'key' => $keyname],
+                                ['value' => $item]
+                            );
                         }
                         
                     }
@@ -168,7 +168,7 @@ class UpdatePlayerMeta extends Command
                 }
                 
             }
-            dd();
+           
         } else {
             $this->error('Failed to retrieve data');
         }

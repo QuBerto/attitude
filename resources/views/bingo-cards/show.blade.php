@@ -326,7 +326,7 @@ function previewImage(event, tileId) {
                         const newBossLi = document.createElement('li');
                         newBossLi.classList.add('flex', 'justify-between', 'items-center', 'p-2', 'bg-gray-100', 'dark:bg-gray-700', 'rounded-md', 'shadow-sm');
                         newBossLi.innerHTML = `
-                            <span>${ucwords(boss.replace(/_/g, ' '))}</span>
+                            <span>${(boss.replace(/_/g, ' '))}</span>
                             <button type="button" class="remove-boss-button text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-600">&times;</button>
                             <input type="hidden" name="bosses[${tileId}][]" value="${boss}">
                         `;
@@ -341,27 +341,17 @@ function previewImage(event, tileId) {
                 });
             });
             // Delete member with confirmation
-            document.querySelectorAll('.delete-boss-button').forEach(button => {
+            document.querySelectorAll('.remove-boss-button').forEach(button => {
                 button.addEventListener('click', function() {
-                    //if (confirm('Are you sure you want to delete this member?')) {
-                        const teamId = this.dataset.teamId;
-                        const userId = this.dataset.userId;
-                        console.log(button);
-                        // fetch(`{{ url('teams') }}/${teamId}/removeMember`, {
-                        //     method: 'POST',
-                        //     headers: {
-                        //         'Content-Type': 'application/json',
-                        //         'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        //     },
-                        //     body: JSON.stringify({ user_id: userId })
-                        // })
-                        // .then(response => response.json())
-                        // .then(data => {
-                        //     if (data.success) {
-                        //         location.reload();
-                        //     }
-                        // });
-                    //}
+                    if (confirm('Are you sure you want to delete this boss?')) {
+                        const tileId = this.dataset.tileId;
+                        const boss = this.dataset.boss;
+                        console.log(boss);
+                        // Find the corresponding list item and remove it
+                        const listItem = this.closest('li');
+                        listItem.remove();
+              
+                    }
                 });
             });
         });
