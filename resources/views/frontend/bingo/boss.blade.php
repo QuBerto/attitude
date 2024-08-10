@@ -48,7 +48,7 @@
                             <img style="height:30px; margin-bottom: 5px;" src="{{ $tile->getFirstMediaUrl('*') }}" alt="{{ $tile->title }} image" class="mt-2 h-auto">
                         @endforeach
                     </th>
-                    <th class="py-3 px-6 text-left text-sm text-gray-100" rowspan="{{ $bossCount + 1 }}">
+                    <th class="py-3 px-6 text-left text-sm text-gray-100" rowspan="{{ $bossCount + 1 }} text-xl">
                         <!-- Display titles for all tiles in this group -->
                         @foreach ($tiles as $tile)
                             {{ $tile->title }}<br>
@@ -58,7 +58,7 @@
                 
                 @foreach ($bosses as $index => $boss)
                     <tr class="border-b border-gray-200 dark:border-gray-700">
-                        <td class="py-3 px-6 text-sm font-medium text-white text-xl">{{ ucwords(str_replace('_', ' ', $boss)) }}</td>
+                        <td class="py-3 px-6 text-sm font-medium text-white ">{{ ucwords(str_replace('_', ' ', $boss)) }}</td>
                         @foreach ($teamsData as $team)
                             @if (isset($team['team_name']))
                                 <td class="py-3 px-6 text-sm text-gray-100 text-center text-xl">
