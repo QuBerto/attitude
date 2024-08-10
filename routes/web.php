@@ -2,6 +2,11 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ClanController;
+use App\Http\Controllers\ClanGuestController;
+use App\Http\Controllers\ClanSecretController;
+use App\Http\Controllers\ClanSettingController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\DiscordUserController;
 use App\Http\Controllers\DiscordRoleController;
 use App\Http\Controllers\RSAccountController;
@@ -13,7 +18,6 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\WordGuessController;
-// Route::get('/', [DiscordUserController::class, 'index']);
 use App\Http\Controllers\ScreenshotController;
 
 
@@ -76,10 +80,38 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::delete('/tasks/{task}/delete', [TaskController::class, 'deleteTaskCompletion']);
-
+    // Add this route for updating the Discord user
+    Route::post('/profile/discord-user', [ProfileController::class, 'updateDiscordUser'])->name('profile.updateDiscordUser');
     // Routes for creating events
     Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
     Route::post('/events', [EventController::class, 'store'])->name('events.store');
+});
+
+
+// Page Routes
+Route::resource('clan', ClanController::class)->only('show');
+
+// Resource Routes
+Route::prefix('api')->group(function () {
+    Route::resource('clan', ClanController::class)->except('show');
+    Route::resource('clan-secret', ClanSecretController::class)->except(['show', 'index', 'edit', 'update', 'create', 'destroy']);
+    Route::get('clan-secret/{clan}', [ClanSecretController::class, 'show']);
+    Route::delete('clan-secret/{clan_secret_id}', [ClanSecretController::class, 'destroy']);
+    Route::resource('clan-settings', ClanSettingController::class);
+    Route::get('clan-guest/{clan}', [ClanGuestController::class, 'show']);
+    Route::post('clan-guest', [ClanGuestController::class, 'store']);
+    Route::delete('clan-guest/{clan_guest_id}', [ClanGuestController::class, 'destroy']);
+
+    // Custom routes for adding and removing a user to/from a clan
+    Route::post('clan/{clan}/add-user', [ClanController::class, 'addUserToClan'])->name('clan.addUser');
+    Route::delete('clan/{clan}/remove-user/{user}', [ClanController::class, 'removeUserFromClan'])->name('clan.removeUser');
+    Route::get('clan/{clan}', [ClanController::class, 'show']);
+});
+Route::get('/dashboard-clan', function () {
+    return view('dashboardClan');
+})->middleware(['auth', 'verified'])->name('dashboard');
+Route::prefix('webhook')->group(function () {
+    Route::post('{clan_secret}', [MessageController::class, 'store']);
 });
 
 require __DIR__.'/auth.php';

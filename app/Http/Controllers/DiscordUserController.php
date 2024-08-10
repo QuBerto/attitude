@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DiscordUser;
 use App\Models\RSAccount;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
 class DiscordUserController extends Controller
 {
     public function index()
@@ -51,5 +51,18 @@ class DiscordUserController extends Controller
         $users = DiscordUser::whereDoesntHave('rsAccounts')->get();
      
         return view('discord-users.unconnected', compact('users', 'rsAccounts'));
+    }
+    public function updateDiscordUser(Request $request)
+    {
+        $request->validate([
+            'discord_user_id' => 'required|exists:discord_users,id',
+        ]);
+
+        $user = Auth::user();
+        $discordUser = $user->discordUsers()->findOrFail($request->discord_user_id);
+
+        // Here you can perform any additional logic needed for updating the selected Discord user
+
+        return redirect()->route('profile.edit')->with('status', 'Discord user updated successfully!');
     }
 }
