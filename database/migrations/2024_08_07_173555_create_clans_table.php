@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('clans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->index()->nullable()->constrained()->cascadeOnDelete();
-            $table->text('name');
-            $table->text('status')->default('INACTIVE');
+            $table->string('name');
+            $table->string('status')->default('INACTIVE'); // Changed from text to string
             $table->timestamps();
         });
     }

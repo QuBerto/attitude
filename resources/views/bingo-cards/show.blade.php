@@ -80,6 +80,30 @@
     </div>
    
     <script>
+
+function previewImage(event, tileId) {
+        const imagePreview = document.getElementById('image-preview_' + tileId);
+        const imagePreviewIcon = document.getElementById('image-preview-icon_' + tileId);
+        const file = event.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (imagePreview) {
+                    imagePreview.src = e.target.result;
+                } else {
+                    const newImage = document.createElement('img');
+                    newImage.id = 'image-preview_' + tileId;
+                    newImage.src = e.target.result;
+                    newImage.width = 100;
+                    newImage.classList.add('rounded-md', 'shadow-md');
+                    
+                    imagePreviewIcon.replaceWith(newImage);
+                }
+            }
+            reader.readAsDataURL(file);
+        }
+    }
         document.addEventListener('DOMContentLoaded', function() {
             // Add accordion functionality
             document.querySelectorAll('.accordion-header').forEach(header => {

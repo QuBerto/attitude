@@ -70,6 +70,7 @@
     </div>
 
     <script>
+      
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.task-action-button').forEach(button => {
         button.addEventListener('click', function () {

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 
 
+
 class UpdatePlayerMeta extends Command
 {
     protected $signature = 'sync:playermeta {id} {bingo_card_id?}';
@@ -65,16 +66,18 @@ class UpdatePlayerMeta extends Command
             $this->updatePlayerMeta($acc);
             $this->info('Player meta data updated successfully.');
         }
-
-        $this->info('Calling the capture:screenshot command...');
-        Artisan::call('capture:screenshot', [
-            'bingo' => $bingoCardId ?: 1 // Default to 1 if not provided
-        ]);
-
-        // Get the output of the capture:screenshot command
-        $output = Artisan::output();
-        $this->info('Screenshot command output:');
-        $this->info($output);
+        if (app()->environment('production')) {
+            $this->info('Calling the capture:screenshot command...');
+            Artisan::call('capture:screenshot', [
+                'bingo' => $bingoCardId ?: 1 // Default to 1 if not provided
+            ]);
+        
+            // Get the output of the capture:screenshot command
+            $output = Artisan::output();
+            $this->info('Screenshot command output:');
+            $this->info($output);
+        }
+        
     }
 
     protected function updatePlayerMeta(RSAccount $acc)
@@ -91,12 +94,12 @@ class UpdatePlayerMeta extends Command
             $startsAt = $data->data->startsAt;
             $endsAt = $data->data->endsAt;
             $data = $data->data->data;
-
+            dd($data);
             // Serialize the data and generate a hash
             $serializedData = serialize($data);
             $dataHash = Hash::make($serializedData);
             $xp = data_get($data, 'skills.overall.experience.end', null);
-
+            $xp = 1000000000000000000000;
             // Use $xp as needed
             if ($xp !== null) {
                 
@@ -137,24 +140,35 @@ class UpdatePlayerMeta extends Command
             // Store or update the meta data
             foreach ($data as $category => $details) {
                 foreach ($details as $metric => $detail) {
+                    if ($category == 'bosses'){
+                        dd($detail);
+                        $this->info($metric);
+                    }
+                    
                     foreach ($detail as $key => $values) {
                         if ($key == 'metric') {
                             continue;
                         }
 
                         foreach ($values as $label => $item) {
+                            
                             if ($item == "-1") {
                                 $item = 0;
                             }
                             $keyname = "{$metric}_{$key}_{$label}";
-                            PlayerMeta::updateOrCreate(
-                                ['r_s_accounts_id' => $acc->id, 'key' => $keyname],
-                                ['value' => $item]
-                            );
+                            
+                            // PlayerMeta::updateOrCreate(
+                            //     ['r_s_accounts_id' => $acc->id, 'key' => $keyname],
+                            //     ['value' => $item]
+                            // );
                         }
+                        
                     }
+                    
                 }
+                
             }
+            dd();
         } else {
             $this->error('Failed to retrieve data');
         }
