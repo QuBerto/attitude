@@ -286,6 +286,84 @@ function previewImage(event, tileId) {
                     });
                 });
             });
+
+            // Delete member with confirmation
+            document.querySelectorAll('.delete-task-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    //if (confirm('Are you sure you want to delete this member?')) {
+                        const teamId = this.dataset.teamId;
+                        const userId = this.dataset.userId;
+        
+                        fetch(`{{ url('teams') }}/${teamId}/removeMember`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({ user_id: userId })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            }
+                        });
+                    //}
+                });
+            });
+
+            // Add task using AJAX
+            document.querySelectorAll('.add-boss-button').forEach(button => {
+                button.addEventListener('click', function () {
+                    const tileId = this.dataset.tileId;
+                    const newBossSelect = document.getElementById(`new-boss_${tileId}`);
+                    const boss = newBossSelect.value.trim();
+
+                    if (boss) {
+                        const bossList = document.getElementById(`boss-list_${tileId}`);
+                        
+                        // Create a new list item for the selected boss
+                        const newBossLi = document.createElement('li');
+                        newBossLi.classList.add('flex', 'justify-between', 'items-center', 'p-2', 'bg-gray-100', 'dark:bg-gray-700', 'rounded-md', 'shadow-sm');
+                        newBossLi.innerHTML = `
+                            <span>${ucwords(boss.replace(/_/g, ' '))}</span>
+                            <button type="button" class="remove-boss-button text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-600">&times;</button>
+                            <input type="hidden" name="bosses[${tileId}][]" value="${boss}">
+                        `;
+
+                        bossList.appendChild(newBossLi);
+
+                        // Reset the select input
+                        newBossSelect.value = '';
+                    } else {
+                        alert('Please select a boss.');
+                    }
+                });
+            });
+            // Delete member with confirmation
+            document.querySelectorAll('.delete-boss-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    //if (confirm('Are you sure you want to delete this member?')) {
+                        const teamId = this.dataset.teamId;
+                        const userId = this.dataset.userId;
+                        console.log(button);
+                        // fetch(`{{ url('teams') }}/${teamId}/removeMember`, {
+                        //     method: 'POST',
+                        //     headers: {
+                        //         'Content-Type': 'application/json',
+                        //         'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        //     },
+                        //     body: JSON.stringify({ user_id: userId })
+                        // })
+                        // .then(response => response.json())
+                        // .then(data => {
+                        //     if (data.success) {
+                        //         location.reload();
+                        //     }
+                        // });
+                    //}
+                });
+            });
         });
     </script>
 </x-app-layout>

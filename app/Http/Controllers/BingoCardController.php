@@ -45,9 +45,11 @@ class BingoCardController extends Controller
         $discord = new AttitudeDiscord(env('DISCORD_GUILD_ID'),env('DISCORD_BOT_TOKEN'));
         $channels = $discord->listChannels();
         $wise = new WiseOldManService();
+
+        $bosses = array_merge($wise::BOSSES, $wise::ACTIVITIES);
     
         // Return the view with the bingoCard and discordUsers
-        return view('bingo-cards.show', compact('bingoCard', 'discordUsers', 'channels'));
+        return view('bingo-cards.show', compact('bingoCard', 'discordUsers', 'channels', 'bosses'));
     }
     
 

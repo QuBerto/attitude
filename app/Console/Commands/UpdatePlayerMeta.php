@@ -94,12 +94,12 @@ class UpdatePlayerMeta extends Command
             $startsAt = $data->data->startsAt;
             $endsAt = $data->data->endsAt;
             $data = $data->data->data;
-            dd($data);
+            // dd($data);
             // Serialize the data and generate a hash
             $serializedData = serialize($data);
             $dataHash = Hash::make($serializedData);
             $xp = data_get($data, 'skills.overall.experience.end', null);
-            $xp = 1000000000000000000000;
+            //$xp = 1000000000000000000000;
             // Use $xp as needed
             if ($xp !== null) {
                 

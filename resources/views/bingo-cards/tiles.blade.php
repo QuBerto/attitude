@@ -48,9 +48,37 @@
                             @endforeach
                         </ul>
                         <div class="flex items-center space-x-2">
+              
                             <input type="text" id="new-task_{{ $tile->id }}" class="flex-grow p-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md" placeholder="Add new task" />
                             <button type="button" class="add-task-button bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white font-bold py-2 px-4 rounded" data-tile-id="{{ $tile->id }}">
                                 {{ __('Add Task') }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="w-full">
+                        <label for="boss_{{ $tile->id }}" class="block font-medium text-sm text-gray-700 dark:text-gray-300">{{ __('Bosses') }}</label>
+                        <ul id="boss-list_{{ $tile->id }}" class="mb-4 space-y-2">
+                            @isset($tile->bosses)
+                            @foreach ($tile->bosses as $boss)
+                                <li class="flex justify-between items-center p-2 bg-gray-100 dark:bg-gray-700 rounded-md shadow-sm">
+                                    <span>{{ $boss }}</span>
+                                    <button type="button" class="remove-boss-button text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-600" data-task-id="{{ $task->id }}">
+                                        &times;
+                                    </button>
+                                </li>
+                            @endforeach
+                            @endisset
+                        </ul>
+                        
+                        <div class="flex items-center space-x-2">
+                            <select id="new-boss_{{ $tile->id }}" class="flex-grow p-3 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md">
+                                <option value="" disabled selected>{{ __('Select a boss') }}</option>
+                                @foreach($bosses as $boss)
+                                    <option value="{{ $boss }}">{{ ucwords(str_replace('_', ' ', $boss)) }}</option>
+                                @endforeach
+                            </select>
+                            <button type="button" class="add-boss-button bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white font-bold py-2 px-4 rounded" data-tile-id="{{ $tile->id }}">
+                                {{ __('Add Boss') }}
                             </button>
                         </div>
                     </div>
