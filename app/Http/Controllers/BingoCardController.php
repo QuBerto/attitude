@@ -44,6 +44,8 @@ class BingoCardController extends Controller
         $discordUsers = DiscordUser::whereNotNull('nick')->get();
         $discord = new AttitudeDiscord(env('DISCORD_GUILD_ID'),env('DISCORD_BOT_TOKEN'));
         $channels = $discord->listChannels();
+        $wise = new WiseOldManService();
+    
         // Return the view with the bingoCard and discordUsers
         return view('bingo-cards.show', compact('bingoCard', 'discordUsers', 'channels'));
     }
@@ -81,10 +83,26 @@ class BingoCardController extends Controller
     }
     public function frontend_team(BingoCard $bingoCard, Team $team)
     {
+        $teamData = $this->team_data($team);
+        return view('frontend.bingo.bingo', compact('bingoCard', 'team', 'teamData'));
+    }
+
+    public function frontend_progress($bingocard, $team){
+        $bingo = (Team::find($bingocard));
+        $team = (Team::find($team));
+        if (!$team || !$bingo){
+            abort(404);
+        }
+
+        return view('frontend.bingo.teamstats', compact('bingo', 'team'));
+        
+    }
+    public function team_data(Team $team){
         $teamId = $team->id;
          // Define a unique cache key for the team data
         $cacheKey = "team_data_{$team->id}";
        
+        
         // Try to get the data from the cache
         $teamData = Cache::remember($cacheKey, 600, function () use ($teamId) {
             $team = Team::with('users.rsAccounts.metas')->findOrFail($teamId);
@@ -141,18 +159,8 @@ class BingoCardController extends Controller
             // Return the data in an array
             return compact('data', 'totals', 'usernames', 'sortedKeys');
         });
-        return view('frontend.bingo.bingo', compact('bingoCard', 'team', 'teamData'));
+        return $teamData;
     }
-
-    public function frontend_progress($bingocard, $team){
-        $bingo = (Team::find($bingocard));
-        $team = (Team::find($team));
-        if (!$team || !$bingo){
-            abort(404);
-        }
-
-        return view('frontend.bingo.teamstats', compact('bingo', 'team'));
-        
-    }
+    
    
 }
