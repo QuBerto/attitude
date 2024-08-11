@@ -4,7 +4,7 @@ if(isset($team)){
     echo '<h2 style="text-align:center; font-size:60px!important; line-heigth:100px!important; " class="bingotile w-full">'.$team->name.'</h2>';
 }
 @endphp
-<div class="grid grid-cols-5 gap-4 w-full">
+<div class="grid  gap-4 w-full cards-grid">
  
     @foreach($bingoCard->tiles as $tile)
         @php
@@ -36,3 +36,15 @@ if(isset($team)){
 @endforeach
 @endif
 </div>
+
+<style>
+.cards-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+@media only screen and (max-width: 600px) {
+    .cards-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+}
+
+</style>
