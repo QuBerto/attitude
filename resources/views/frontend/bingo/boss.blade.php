@@ -1,4 +1,4 @@
-@isset($teamData)
+
 @php
     // Group tiles by their bosses
     $groupedTiles = [];
@@ -18,7 +18,6 @@
         $groupedTiles[$bossKey][] = $tile;
     }
 @endphp
-
 
 <div class="overflow-x-auto w-full">
     <table class="min-w-full shadow-md rounded-lg w-full">
@@ -86,4 +85,3 @@
         </tbody>
     </table>
 </div>
-@endisset

@@ -1,4 +1,4 @@
-@isset($teamData)
+
 
     <table class="min-w-full divide-y divide-gray-700">
         <thead>
@@ -31,4 +31,3 @@
             @endforeach
         </tbody>
     </table>
-@endisset
