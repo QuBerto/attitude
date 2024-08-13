@@ -32,6 +32,37 @@ class DropController extends Controller
     }
 
     /**
+     * Display a listing of the drops.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function show(Request $request)
+    {
+       
+        $drops = Drop::with('player')->get();
+        return view('drops.index', compact('drops'));
+    }
+
+    public function showByEventCode($eventcode)
+    {
+        // Retrieve the top 10 drops that match the given event code, sorted by gp in descending order
+        $drops = Drop::with('player')
+                    ->where('eventcode', $eventcode)
+                    ->orderBy('gp', 'desc')
+                    ->take(10)
+                    ->get();
+    
+        // If no drops found, you may want to return a message or redirect
+        if ($drops->isEmpty()) {
+            return response()->json(['message' => 'No drops found for this event code.'], 404);
+        }
+    
+        // Return the filtered drops in a view or as a JSON response
+        return view('drops.index', compact('drops'));
+    }
+    
+
+    /**
      * Store a newly created drop in storage.
      *
      * @param  \Illuminate\Http\Request  $request
