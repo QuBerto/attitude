@@ -1,3 +1,4 @@
+@isset($teamData)
 @php
     // Group tiles by their bosses
     $groupedTiles = [];
@@ -85,3 +86,4 @@
         </tbody>
     </table>
 </div>
+@endisset

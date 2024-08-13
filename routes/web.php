@@ -19,8 +19,8 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\WordGuessController;
 use App\Http\Controllers\ScreenshotController;
-
-
+use App\Http\Controllers\DropController;
+use Illuminate\Support\Facades\Log;
 
 Route::get('/bingo/{bingoCard}/progress/{team}', [BingoCardController::class, 'frontend_progress'])->name('frontend-progress');
 Route::get('/bingo/{bingoCard}', [BingoCardController::class, 'frontend'])->name('frontend-overview');
@@ -91,6 +91,13 @@ Route::middleware('auth')->group(function () {
 // Page Routes
 Route::resource('clan', ClanController::class)->only('show');
 
+
+Route::resource('/drops', DropController::class)->only(['store', 'index']);
+
+Route::get('/config', function () {
+    Log::info('config request received');
+    return view('config');
+});
 // Resource Routes
 Route::prefix('api')->group(function () {
     Route::resource('clan', ClanController::class)->except('show');
