@@ -1,5 +1,8 @@
 
 @php
+if(!isset($teamData)){
+    return;
+}
     // Group tiles by their bosses
     $groupedTiles = [];
     foreach ($bingoCard->tiles as $tile) {
