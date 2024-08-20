@@ -20,7 +20,16 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\WordGuessController;
 use App\Http\Controllers\ScreenshotController;
 use App\Http\Controllers\DropController;
+use \App\Http\Controllers\Api\BingoController;
 use Illuminate\Support\Facades\Log;
+
+
+Route::get('/api/bingo/{bingo}/teams', [\App\Http\Controllers\Api\BingoController::class, 'teams'])->name('api-teams');
+Route::get('/api/bingo/{bingo}/team/{team}/tiles', [\App\Http\Controllers\Api\BingoController::class, 'tiles_team'])->name('api-team-tiles');
+Route::get('/api/bingo/{bingo}/team/{team}/players', [\App\Http\Controllers\Api\BingoController::class, 'team_players'])->name('api-team-player');
+Route::get('/api/bingo/{bingo}/team/{team}/', [\App\Http\Controllers\Api\BingoController::class, 'showTeam'])->name('api-team');
+
+
 
 Route::get('/bingo/{bingoCard}/progress/{team}', [BingoCardController::class, 'frontend_progress'])->name('frontend-progress');
 Route::get('/bingo/{bingoCard}', [BingoCardController::class, 'frontend'])->name('frontend-overview');

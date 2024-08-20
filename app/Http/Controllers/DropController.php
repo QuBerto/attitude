@@ -142,7 +142,7 @@ class DropController extends Controller
         }
         $cacheKey = 'item_value_' . strtolower($itemName);
 
-        return Cache::remember($cacheKey, now()->addMonth(), function () use ($itemName) {
+        return Cache::remember($cacheKey, now()->addHour(), function () use ($itemName) {
             $mappingResponse = Http::withHeaders(['User-Agent' => $this->userAgent])
                 ->get('https://prices.runescape.wiki/api/v1/osrs/mapping');
 
