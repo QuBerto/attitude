@@ -22,8 +22,11 @@
     },
     "dependencies": {
         "capture-website": "^4.1.0",
+        "discord.js": "^14.15.3",
+        "dotenv": "^16.4.5",
         "flowbite": "^1.6.5",
         "mitt": "^3.0.0",
+        "node-fetch": "^3.3.2",
         "vue-toastification": "^2.0.0-rc.5"
     }
 }

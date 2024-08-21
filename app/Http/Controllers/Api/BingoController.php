@@ -62,6 +62,7 @@ class BingoController extends Controller
                 'pivot' => $team->pivot,  // You can adjust the pivot data if necessary
             ];
         });
+        return $data;
 
         // Create the message string with ID and name, separated by <br>
         $message = $bingo->teams->map(function($team) {
@@ -75,10 +76,26 @@ class BingoController extends Controller
         ], 200);
     }
 
-    /**
+     /**
      * Display a listing of the uncompleted tasks by a team.
      */
     public function tiles_team(BingoCard $bingo, Team $team)
+    {
+        $uncompletedTasks = [];
+
+        foreach ($bingo->tiles as $tile) {
+            $tile[] = [
+                'tile_id' => $tile->id,
+                'tile_name' => $tile->title,
+            ];
+        }
+        return $uncompletedTasks;
+    }
+
+    /**
+     * Display a listing of the uncompleted tasks by a team.
+     */
+    public function tasks_team(BingoCard $bingo, Team $team)
     {
         $uncompletedTasks = [];
 
@@ -99,6 +116,7 @@ class BingoController extends Controller
                 }
             }
         }
+        return $uncompletedTasks;
 
         // Create the message string with uncompleted task IDs and names, separated by <br>
         $message = collect($uncompletedTasks)->map(function ($task) {
@@ -126,6 +144,7 @@ class BingoController extends Controller
               
             ];
         });
+        return $data;
 
         // Create the message string with ID and name, separated by <br>
         $message =  $team->users->map(function($player) {
