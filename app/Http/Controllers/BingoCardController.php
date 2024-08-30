@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use DB;
 use App\Models\BingoCard;
 use App\Models\DiscordUser;
 use Illuminate\Support\Facades\Cache;
@@ -46,8 +46,14 @@ class BingoCardController extends Controller
         $channels = $discord->listChannels();
         $wise = new WiseOldManService();
 
-        $bosses = array_merge($wise::BOSSES, $wise::RAIDS, $wise::ACTIVITIES);
-    
+        $bosses = array_merge(array_keys($wise::BOSSES), array_keys($wise::RAIDS), $wise::ACTIVITIES);
+        // Fetch distinct bosses and cache the result for 24 hours
+        $distinctBosses = DB::table('tiles')
+        ->select(DB::raw('DISTINCT JSON_UNQUOTE(JSON_EXTRACT(bosses, "$[*]")) as boss'))
+        ->whereNotNull('bosses')
+        ->where('bingo_card_id', 1)
+        ->get();
+        dd($distinctBosses);
         // Return the view with the bingoCard and discordUsers
         return view('bingo-cards.show', compact('bingoCard', 'discordUsers', 'channels', 'bosses'));
     }

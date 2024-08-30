@@ -14,8 +14,21 @@ const commands = [
         name: 'teams',
         description: 'Lists all teams',
     },
+    {
+        name: 'purge',
+        description: 'Deletes a specified number of messages.',
+        options: [
+            {
+                name: 'count',
+                type: 4, // INTEGER type
+                description: 'Number of messages to delete (1-100)',
+                required: true,
+            },
+        ],
+    },
     // Add more commands here
 ];
+
 
 // Initialize the REST client
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_BOT_TOKEN);

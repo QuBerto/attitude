@@ -95,5 +95,46 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 });
 
+client.on(Events.InteractionCreate, async interaction => {
+    if (interaction.isCommand()) {
+        const { commandName } = interaction;
+
+        if (commandName === 'purge') {
+            const allowedRoleIds = process.env.ALLOWED_ROLE_IDS.split(',');
+
+            // Check if the user has at least one of the allowed roles
+            const hasAllowedRole = interaction.member.roles.cache.some(role => allowedRoleIds.includes(role.id));
+
+            if (!hasAllowedRole) {
+                console.log(hasAllowedRole);
+                await interaction.reply({ content: 'You do not have permission to use this command.', ephemeral: true });
+                return;
+            }
+
+            const count = interaction.options.getInteger('count');
+
+            if (count < 1 || count > 100) {
+                await interaction.reply({ content: 'You can only delete between 1 and 100 messages at a time.', ephemeral: true });
+                return;
+            }
+
+            const channel = interaction.channel;
+
+            try {
+                const messages = await channel.bulkDelete(count, true);
+                await interaction.reply({ content: `Successfully deleted ${messages.size} messages.`, ephemeral: true });
+            } catch (error) {
+                console.error(error);
+                await interaction.reply({ content: 'There was an error trying to delete messages in this channel!', ephemeral: true });
+            }
+        }
+
+        // Existing code for other commands...
+    }
+    
+    // Existing code for button interactions...
+});
+
+
 // Login to Discord with your bot token
 client.login(process.env.DISCORD_BOT_TOKEN);
