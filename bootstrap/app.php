@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'capture-screenshot',
             'webhook',
+            'webhook/npc_kill',
             'drops',
             'config'
             

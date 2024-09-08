@@ -6,6 +6,9 @@ use App\Models\DiscordUser;
 use App\Models\RSAccount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+
+
 class DiscordUserController extends Controller
 {
     public function index()
@@ -65,4 +68,28 @@ class DiscordUserController extends Controller
 
         return redirect()->route('profile.edit')->with('status', 'Discord user updated successfully!');
     }
+
+    public function getToken(Request $request)
+    {
+        // Log the incoming request
+        Log::info('Drop request received', [$request->all()]);
+    
+        // Validate the request data
+        $request->validate([
+            'discord_user_id' => 'required',
+        ]);
+    
+        // Find the user by discord_id
+        $user = DiscordUser::where('discord_id', $request->input('discord_user_id'))->first();
+    
+        // Check if the user exists
+        if ($user) {
+            // Return the token with a 200 OK status
+            return response()->json(['token' => $user->token], 200);
+        } else {
+            // Return a 404 Not Found status with an error message
+            return response()->json(['error' => 'Discord user not found'], 404);
+        }
+    }
+    
 }

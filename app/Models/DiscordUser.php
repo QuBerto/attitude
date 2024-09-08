@@ -9,7 +9,7 @@ class DiscordUser extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['discord_id', 'username', 'nick', 'avatar', 'discriminator'];
+    protected $fillable = ['discord_id', 'username', 'nick', 'avatar', 'discriminator', 'token'];
 
     public function teams()
     {
@@ -30,4 +30,5 @@ class DiscordUser extends Model
     {
         return $this->belongsTo(User::class);
     }
+
 }

@@ -21,8 +21,14 @@ use App\Http\Controllers\WordGuessController;
 use App\Http\Controllers\ScreenshotController;
 use App\Http\Controllers\DropController;
 use \App\Http\Controllers\Api\BingoController;
-use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\NpcKillController;
 
+
+Route::prefix('webhook')->group(function () {
+    Route::post('/npc_kill', [NpcKillController::class, 'store']); // Store a new NPC kill
+    Route::get('/npc_kills', [NpcKillController::class, 'index']);  // Retrieve all NPC kills
+    Route::get('/npc_kills/{id}', [NpcKillController::class, 'show']); // Retrieve a specific NPC kill
+});
 
 Route::get('/api/bingo/{bingo}/teams', [\App\Http\Controllers\Api\BingoController::class, 'teams'])->name('api-teams');
 Route::get('/api/bingo/{bingo}/team/{team}/tiles', [\App\Http\Controllers\Api\BingoController::class, 'tiles_team'])->name('api-team-tiles');
@@ -110,6 +116,7 @@ Route::get('/config', function () {
 });
 // Resource Routes
 Route::prefix('api')->group(function () {
+    Route::get('get-token', [DiscordUserController::class, 'getToken']);
     Route::resource('clan', ClanController::class)->except('show');
     Route::resource('clan-secret', ClanSecretController::class)->except(['show', 'index', 'edit', 'update', 'create', 'destroy']);
     Route::get('clan-secret/{clan}', [ClanSecretController::class, 'show']);

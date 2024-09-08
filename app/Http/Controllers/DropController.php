@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
-
+use App\Models\DiscordUser;
 class DropController extends Controller
 {
     protected $dropService;
@@ -181,4 +181,56 @@ class DropController extends Controller
 
         return null;
     }
+    public function npc_kill(Request $request)
+    {
+        $authorizationHeader = $request->header('Authorization'); // Retrieve token from request header
+        $token = str_replace('Bearer: ', '', $authorizationHeader); // Now $token contains only 'xMo5KHqG9KfjgpwCW9BDcVdOR9GWPbbgO5sSkMfQ7vnWwKgCu810u
+
+        $discordUser = DiscordUser::where('token', $token)->whereNotNull('token')->first();
+       
+        if (!$discordUser) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+    
+        // Token is valid, proceed with the request
+        return response()->json(['message' => 'Success'], 200);
+    }
+    // public function npc_kill(Request $request)
+    // {
+
+    //     Log::info('Drop request received', $request->all());
+
+    //     $player = RSAccount::where('username', $request->input('username'))->first();
+
+    //     if (!$player) {
+    //         Log::error('Player not found: ' . $request->input('username'));
+    //         return response()->json(['error' => 'Player not found'], 404);
+    //     }
+
+    //     $validated = $request->validate([
+    //         'eventcode'  => 'required|string',
+    //         'itemsource' => 'required|string',
+    //         'items'      => 'required|array',
+    //     ]);
+
+    //     $totalValue = $this->calculateTotalItemValue($validated['items']);
+    //     $drop = Drop::create([
+    //         'player_id'  => $player->id,
+    //         'eventcode'  => $validated['eventcode'],
+    //         'itemsource' => $validated['itemsource'],
+    //         'items'      => $validated['items'],
+    //         'gp'         => $totalValue,
+    //     ]);
+
+    //         // Log the raw JSON payload received in the request
+    //         Log::info('Webhook request received', [
+    //             'headers' => $request->headers->all(),  // Log the headers
+    //             'body' => $request->getContent(),       // Log the raw body (JSON)
+    //         ]);
+    
+    //         // Optionally, you can also log the parsed data as an array
+    //         Log::info('Parsed request data', ['data' => $request->all()]);
+    
+    //         return response()->json(['status' => 'logged'], 200);
+    // }
 }
