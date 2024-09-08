@@ -35,7 +35,7 @@
                                     @isset($item->osrsItem->name)
                                     <li>{{ $item->osrsItem->name}} (x{{ $item['quantity'] }})</li>
                                     @else
-                                    {{$item->item_id}}
+                                    <li>{{$item->item_id}} (x{{ $item['quantity'] }})</li>
                                     @endisset
                                 @endforeach
                             </ul>
