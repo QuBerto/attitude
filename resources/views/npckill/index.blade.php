@@ -26,7 +26,7 @@
                 @foreach($drops as $drop)
                     <tr>
                     
-                        <td class="whitespace-nowrap px-3 py-4 text-white">{{ $drop->discord_user_id }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-white">{{ $drop->discordUser->username }}</td>
                         {{-- <td class="whitespace-nowrap px-3 py-4 text-white">{{ $drop->eventcode }}</td> --}}
                         <td class="whitespace-nowrap px-3 py-4 text-white">{{ $drop->npc_id }}</td>
                         <td class="whitespace-nowrap px-3 py-4 text-white">
