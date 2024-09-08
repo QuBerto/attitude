@@ -86,7 +86,7 @@ class PlayerStatusController extends Controller
         if ($request->query('format') === 'discord') {
             // Format the usernames as a string suitable for Discord
             $usernames = $recentUpdates->pluck('user_name')->map(function($name) {
-                return "`$name`"; // Surround each username with backticks for Discord formatting
+                return ":Achiever: $name\n"; // Surround each username with backticks for Discord formatting
             })->implode(', ');
 
             // Return the formatted list
