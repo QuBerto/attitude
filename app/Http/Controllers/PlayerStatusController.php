@@ -68,21 +68,32 @@ class PlayerStatusController extends Controller
 
         return response()->json(['message' => 'Player status updated successfully'], 200);
     }
-     // Method to get usernames updated in the last 3 minutes
-     public function getRecentUpdates()
-     {
-         // Calculate the time for 3 minutes ago
-         $threeMinutesAgo = Carbon::now()->subMinutes(3);
- 
-         // Query player_status records where updated_at is within the last 3 minutes
-         $recentUpdates = PlayerStatus::where('updated_at', '>=', $threeMinutesAgo)->get(['user_name']);
- 
-         // If no users were updated, return a message
-         if ($recentUpdates->isEmpty()) {
-             return response()->json(['message' => 'No players were updated in the last 3 minutes'], 200);
-         }
- 
-         // Return the list of usernames
-         return response()->json($recentUpdates, 200);
-     }
+    // Method to get usernames updated in the last 3 minutes
+    public function getRecentUpdates(Request $request)
+    {
+        // Calculate the time for 3 minutes ago
+        $threeMinutesAgo = Carbon::now()->subMinutes(3);
+
+        // Query player_status records where updated_at is within the last 3 minutes
+        $recentUpdates = PlayerStatus::where('updated_at', '>=', $threeMinutesAgo)->get(['user_name']);
+
+        // If no users were updated, return a message
+        if ($recentUpdates->isEmpty()) {
+            return response()->json(['message' => 'No players were updated in the last 3 minutes'], 200);
+        }
+
+        // Check if the format query parameter is set to 'discord'
+        if ($request->query('format') === 'discord') {
+            // Format the usernames as a string suitable for Discord
+            $usernames = $recentUpdates->pluck('user_name')->map(function($name) {
+                return "`$name`"; // Surround each username with backticks for Discord formatting
+            })->implode(', ');
+
+            // Return the formatted list
+            return response()->json(['formatted_usernames' => $usernames], 200);
+        }
+
+        // Return the list of usernames in default format (JSON array)
+        return response()->json($recentUpdates, 200);
+    }
 }
