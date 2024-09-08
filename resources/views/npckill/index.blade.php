@@ -1,3 +1,4 @@
+
 @extends('layouts.frontend')
 @section('content')
 <main style="" class="mt-6  mx-auto">
@@ -28,13 +29,22 @@
                     
                         <td class="whitespace-nowrap px-3 py-4 text-white">{{ $drop->discordUser->username }}</td>
                         {{-- <td class="whitespace-nowrap px-3 py-4 text-white">{{ $drop->eventcode }}</td> --}}
-                        <td class="whitespace-nowrap px-3 py-4 text-white">{{ $drop->npc_id }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-white">
+                            @php
+                            $npcName = App\Enums\NpcIds::getNameById($drop->npc_id);
+                            if ($npcName){
+                                echo $npcName;
+                            }
+                            @endphp
+
+                        </td>
                         <td class="whitespace-nowrap px-3 py-4 text-white">
                             <ul class="list-disc list-inside">
                                 @foreach($drop->items as $item)
                                     @isset($item->osrsItem->name)
                                     <li>{{ $item->osrsItem->name}} (x{{ $item['quantity'] }})</li>
                                     @else
+                                    
                                     <li>{{$item->item_id}} (x{{ $item['quantity'] }})</li>
                                     @endisset
                                 @endforeach
