@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'capture-screenshot',
             'webhook',
             'webhook/npc_kill',
+            'webhook/player_status',
             'drops',
             'config'
             

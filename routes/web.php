@@ -22,14 +22,18 @@ use App\Http\Controllers\ScreenshotController;
 use App\Http\Controllers\DropController;
 use \App\Http\Controllers\Api\BingoController;
 use App\Http\Controllers\NpcKillController;
+use App\Http\Controllers\PlayerStatusController;
+
+
 
 
 Route::prefix('webhook')->group(function () {
     Route::post('/npc_kill', [NpcKillController::class, 'store']); // Store a new NPC kill
     Route::get('/npc_kills', [NpcKillController::class, 'index']);  // Retrieve all NPC kills
     Route::get('/npc_kills/{id}', [NpcKillController::class, 'show']); // Retrieve a specific NPC kill
+    Route::post('/player_status', [PlayerStatusController::class, 'store']);
 });
-
+Route::get('/online', [PlayerStatusController::class, 'getRecentUpdates']);
 Route::get('/api/bingo/{bingo}/teams', [\App\Http\Controllers\Api\BingoController::class, 'teams'])->name('api-teams');
 Route::get('/api/bingo/{bingo}/team/{team}/tiles', [\App\Http\Controllers\Api\BingoController::class, 'tiles_team'])->name('api-team-tiles');
 Route::get('/api/bingo/{bingo}/team/{team}/players', [\App\Http\Controllers\Api\BingoController::class, 'team_players'])->name('api-team-player');
