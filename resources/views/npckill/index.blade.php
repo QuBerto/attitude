@@ -34,6 +34,8 @@
                                 @foreach($drop->items as $item)
                                     @isset($item->osrsItem->name)
                                     <li>{{ $item->osrsItem->name}} (x{{ $item['quantity'] }})</li>
+                                    @else
+                                    {{$item->item_id}}
                                     @endisset
                                 @endforeach
                             </ul>
