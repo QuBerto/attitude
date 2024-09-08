@@ -4,7 +4,7 @@ namespace App\Enums;
 class NpcIds
 {
     const TOOL_LEPRECHAUN = 0;
-    const MOLANISK = 1;
+    const MOLANISK = 1; 
     const ABERRANT_SPECTRE = 2;
     const ABERRANT_SPECTRE_3 = 3;
     const ABERRANT_SPECTRE_4 = 4;
