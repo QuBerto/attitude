@@ -28,6 +28,28 @@
                             <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Description</label>
                             <textarea name="description" id="description" rows="3" class="mt-1 dark:bg-gray-700  block w-full">{{ $item->description }}</textarea>
                         </div>
+
+                        <div class="mb-4">
+                            <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Type</label>
+                            <select name="type" id="type" class="mt-1 block w-full">
+                                <option value="manual" {{ old('type', $item->type ?? '') == 'manual' ? 'selected' : '' }}>Manual</option>
+                                <option value="connected" {{ old('type', $item->type ?? '') == 'connected' ? 'selected' : '' }}>Connected</option>
+                                <option value="api" {{ old('type', $item->type ?? '') == 'api' ? 'selected' : '' }}>API</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="parent_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Parent Item</label>
+                            <select name="parent_id" id="parent_id" class="mt-1 block w-full">
+                                <option value="">None</option>
+                                @foreach ($items as $parentItem)
+                                    <option value="{{ $parentItem->id }}" {{ old('parent_id', $item->parent_id ?? '') == $parentItem->id ? 'selected' : '' }}>
+                                        {{ $parentItem->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
                         <div class="flex items-center justify-end">
                             <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded">
                                 Update

@@ -13,20 +13,44 @@
                         @csrf
                         <div class="mb-4">
                             <label for="item_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Item ID</label>
-                            <input type="number" name="item_id" id="item_id" class="mt-1 block w-full" required>
+                            <input type="number" name="item_id" id="item_id" class="mt-1 dark:bg-gray-700 block w-full"
+                                   value="{{ request('item_id') ?? old('item_id') }}" required>
                         </div>
+                        
                         <div class="mb-4">
                             <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Name</label>
-                            <input type="text" name="name" id="name" class="mt-1 block w-full" required>
+                            <input type="text" name="name" id="name" class="mt-1 block dark:bg-gray-700 w-full" required>
                         </div>
                         <div class="mb-4">
                             <label for="value" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Value</label>
-                            <input type="number" name="value" id="value" class="mt-1 block w-full">
+                            <input type="number" name="value" id="value" class="mt-1 dark:bg-gray-700 block w-full">
                         </div>
                         <div class="mb-4">
                             <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Description</label>
-                            <textarea name="description" id="description" rows="3" class="mt-1 block w-full"></textarea>
+                            <textarea name="description" id="description" rows="3" class="mt-1 dark:bg-gray-700 block w-full"></textarea>
                         </div>
+
+                        <div class="mb-4">
+                            <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Type</label>
+                            <select name="type" id="type" class="mt-1 block  dark:bg-gray-700 w-full">
+                                <option value="manual" {{ old('type', $item->type ?? '') == 'manual' ? 'selected' : '' }}>Manual</option>
+                                <option value="connected" {{ old('type', $item->type ?? '') == 'connected' ? 'selected' : '' }}>Connected</option>
+                                <option value="api" {{ old('type', $item->type ?? '') == 'api' ? 'selected' : '' }}>API</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="parent_id" class="block text-sm font-medium text-gray-700 dark:text-gray-200">Parent Item</label>
+                            <select name="parent_id" id="parent_id" class="mt-1  dark:bg-gray-700 block w-full">
+                                <option value="">None</option>
+                                @foreach ($items as $parentItem)
+                                    <option value="{{ $parentItem->id }}" {{ old('parent_id', $item->parent_id ?? '') == $parentItem->id ? 'selected' : '' }}>
+                                        {{ $parentItem->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
                         <div class="flex items-center justify-end">
                             <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded">
                                 Create

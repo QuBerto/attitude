@@ -57,4 +57,42 @@
             </div>
         </div>
     </div>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                
+                    
+                    <table class="min-w-full bg-white dark:bg-gray-800">
+                        <thead class="bg-gray-800 text-white">
+                            <tr>
+                                <th class="py-3 px-4 uppercase font-semibold text-sm">Item ID</th>
+                                <th class="py-3 px-4 uppercase font-semibold text-sm">Create item</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700 dark:text-gray-300">
+                            @foreach ($missingItems as $item)
+         
+                                <tr>
+                                    <td class="py-3 px-4">{{ $item }}</td>
+                                    <td class="py-3 px-4">
+                                        <!-- Link to the create page with the item_id as a GET parameter -->
+                                        <a href="{{ route('osrs-items.create', ['item_id' => $item]) }}" class="bg-blue-500 text-white font-bold py-1 px-3 rounded">
+                                            Create
+                                        </a>
+                                    </td>
+                                </tr>
+                                
+                            @endforeach
+                        </tbody>
+                    </table>
+                    
+                    @if($items->isEmpty())
+                        <p class="text-gray-500 dark:text-gray-400 mt-4">No OSRS items found.</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
 </x-app-layout>

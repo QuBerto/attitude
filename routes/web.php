@@ -62,7 +62,7 @@ Route::get('/dashboard', function () {
 
 
 Route::middleware('auth')->group(function () {
-    
+    Route::get('/findApiItem/{item_id}', [OsrsItemController::class, 'findApiItem'])->name('find-item');
     //Discord Users
     Route::get('/discord-users', [DiscordUserController::class, 'index'])->name('discord-users.index');
     Route::get('/discord-users/show/{discordUser}', [DiscordUserController::class, 'show'])->name('discord-users.show');
