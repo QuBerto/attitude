@@ -24,6 +24,9 @@
                     <x-nav-link :href="route('discord-users.index')" :active="request()->routeIs('discord-users.index')">
                         {{ __('Users') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('osrs-items.index')" :active="request()->routeIs('osrs-items.index')">
+                        {{ __('Items') }}
+                    </x-nav-link>
                 </div>
             </div>
 

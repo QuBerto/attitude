@@ -23,7 +23,7 @@ use App\Http\Controllers\DropController;
 use \App\Http\Controllers\Api\BingoController;
 use App\Http\Controllers\NpcKillController;
 use App\Http\Controllers\PlayerStatusController;
-
+use App\Http\Controllers\OsrsItemController;
 
 
 
@@ -81,7 +81,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('bingo-cards', BingoCardController::class);
     Route::resource('tiles', TileController::class)->only(['update']);
     Route::resource('tasks', TaskController::class)->only(['store']);
-
+    Route::resource('osrs-items', OsrsItemController::class);
     Route::post('teams/{card}/store', [TeamController::class, 'store'])->name('teams.store');
     Route::post('teams/{team}/addMember', [TeamController::class, 'addMember'])->name('teams.addMember');
     Route::post('/teams/{team}/removeMember', [TeamController::class, 'removeMember'])->name('teams.removeMember');

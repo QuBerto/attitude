@@ -72,7 +72,6 @@ class NpcKillController extends Controller
 
                 $itemId = $item['id'];
                 if ($itemId === null) {
-                   
                     continue;
                 }
     
@@ -87,13 +86,14 @@ class NpcKillController extends Controller
                         'value' => $prices['item']['current']['price'] ?? 0,
                         'description' => $prices['item']['description'],
                     ]);
-                    // Create an NpcItem record and associate it with the OsrsItem
-                    NpcItem::create([
-                        'npc_kill_id' => $npcKill->id,
-                        'item_id' => $item['id'], // This refers to the OSRS item
-                        'quantity' => $item['quantity'],
-                    ]);
+                    
                 }
+                // Create an NpcItem record and associate it with the OsrsItem
+                NpcItem::create([
+                    'npc_kill_id' => $npcKill->id,
+                    'item_id' => $item['id'], // This refers to the OSRS item
+                    'quantity' => $item['quantity'],
+                ]);
 
             }
         }
