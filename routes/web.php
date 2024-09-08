@@ -106,7 +106,7 @@ Route::middleware('auth')->group(function () {
 // Page Routes
 Route::resource('clan', ClanController::class)->only('show');
 
-
+Route::get('/npckills', [NpcKillController::class, 'index']);
 Route::resource('/drops', DropController::class)->only(['store', 'index']);
 // Custom route to filter drops by event code
 Route::get('/drops/event/{eventcode}', [DropController::class, 'showByEventCode'])->name('drops.byEventCode');

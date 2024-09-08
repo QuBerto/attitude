@@ -5,61 +5,106 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\NpcKill;
 use App\Models\NpcItem;
+use App\Models\OsrsItem;
 use App\Models\DiscordUser;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Http;
 
 class NpcKillController extends Controller
 {
+    protected $userAgent = 'AttitudeBot/1.0 (https://attitude.com;)';
     // Store new NPC kill data
+
+      /**
+     * Display a listing of the drops.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index()
+    {
+        $drops = NpcKill::with('items')->get(); // Eager load the items
+        return view('npckill.index', compact('drops'));
+    }
     public function store(Request $request)
     {
         $authorizationHeader = $request->header('Authorization'); // Retrieve token from request header
-        $token = str_replace('Bearer: ', '', $authorizationHeader); // Now $token contains only 'xMo5KHqG9KfjgpwCW9BDcVdOR9GWPbbgO5sSkMfQ7vnWwKgCu810u
+        $token = str_replace('Bearer: ', '', $authorizationHeader); // Now $token contains only '
 
         $discordUser = DiscordUser::where('token', $token)->whereNotNull('token')->first();
-        Log::info('Drop request received', [$request->all(), 'token' => $token, 'headers' => $request->headers] );
+       
         
        
         if (!$discordUser) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        Log::info('Drop request received', [$request->all(), 'user' => $discordUser->username] );
-        // Validate the incoming request data
-        $data = $request->validate([
-            'npcId' => 'required|integer',
-            'gePrice' => 'required|integer',
-            'timestamp' => 'required|integer',
-            'items' => 'required|array',
-            'items.*.id' => 'required|integer',
-            'items.*.quantity' => 'required|integer',
-        ]);
+       
 
-        // Create a new NpcKill record
+
+        // Access the first element in the array (in this case the key is '0')
+        $data = $request->input();
+        $killdata = $data['data'];
+        $timestamp = $data['timestamp'];
+        
         $npcKill = NpcKill::create([
-            'npc_id' => $data['npcId'],
-            'ge_price' => $data['gePrice'],
-            'timestamp' => $data['timestamp'],
+            'npc_id' => $killdata['npcId'],
+            'ge_price' => $killdata['gePrice'],
+            'timestamp' => $timestamp,
+            'discord_user_id' => $discordUser->id,
         ]);
 
-        // Create associated NpcItem records
-        foreach ($data['items'] as $item) {
-            NpcItem::create([
-                'npc_kill_id' => $npcKill->id, // Foreign key to npc_kills
-                'item_id' => $item['id'],
-                'quantity' => $item['quantity'],
-            ]);
+        // Now, $validatedData contains the validated array
+        // Perform your logic for storing or processing the data
+  
+        foreach ($killdata['items'] as $item) {
+
+
+            $osrsItem = OsrsItem::where('item_id', $item['id'])->first();
+
+            if ($osrsItem) {
+                // Create an NpcItem record and associate it with the OsrsItem
+                NpcItem::create([
+                    'npc_kill_id' => $npcKill->id,
+                    'item_id' => $item['id'], // This refers to the OSRS item
+                    'quantity' => $item['quantity'],
+                ]);
+            } else {
+
+                $itemId = $item['id'];
+                if ($itemId === null) {
+                   
+                    continue;
+                }
+    
+                $priceResponse = Http::withHeaders(['User-Agent' => $this->userAgent])
+                    ->get('https://secure.runescape.com/m=itemdb_oldschool/api/catalogue/detail.json', ['item' => $itemId]);
+                $prices = $priceResponse->json();
+                if ($prices){
+          
+                    OsrsItem::create([
+                        'item_id' => $itemId,
+                        'name' => $prices['item']['name'],
+                        'value' => $prices['item']['current']['price'] ?? 0,
+                        'description' => $prices['item']['description'],
+                    ]);
+                    // Create an NpcItem record and associate it with the OsrsItem
+                    NpcItem::create([
+                        'npc_kill_id' => $npcKill->id,
+                        'item_id' => $item['id'], // This refers to the OSRS item
+                        'quantity' => $item['quantity'],
+                    ]);
+                }
+
+            }
         }
-
-        return response()->json(['message' => 'NpcKill created successfully!'], 201);
+        return response()->json(['message' => 'NpcKill and associated items processed successfully!'], 201);
     }
 
-    // Retrieve all NPC kills with associated items
-    public function index()
-    {
-        $npcKills = NpcKill::with('items')->get(); // Eager load the items
-        return response()->json($npcKills);
-    }
+    // // Retrieve all NPC kills with associated items
+    // public function index()
+    // {
+    //     $npcKills = NpcKill::with('items')->get(); // Eager load the items
+    //     return response()->json($npcKills);
+    // }
 
     // Retrieve a specific NPC kill by ID with associated items
     public function show($id)

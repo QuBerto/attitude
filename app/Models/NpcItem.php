@@ -9,10 +9,15 @@ class NpcItem extends Model
 {
     use HasFactory;
 
-    // Specify the fillable fields
     protected $fillable = ['npc_kill_id', 'item_id', 'quantity'];
 
-    // Define the relationship with the NpcKill model
+    // Define the relationship to OsrsItem
+    public function osrsItem()
+    {
+        return $this->belongsTo(OsrsItem::class, 'item_id', 'item_id');
+    }
+
+    // Define the relationship to NpcKill
     public function npcKill()
     {
         return $this->belongsTo(NpcKill::class);

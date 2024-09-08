@@ -9,10 +9,14 @@ class NpcKill extends Model
 {
     use HasFactory;
 
-    // Specify the fillable fields
-    protected $fillable = ['npc_id', 'ge_price', 'timestamp'];
+    protected $fillable = ['npc_id', 'ge_price', 'timestamp', 'discord_user_id'];
 
-    // Define the relationship with the NpcItem model
+    // Define the relationship to DiscordUser
+    public function discordUser()
+    {
+        return $this->belongsTo(DiscordUser::class, 'discord_user_id');
+    }
+
     public function items()
     {
         return $this->hasMany(NpcItem::class);
