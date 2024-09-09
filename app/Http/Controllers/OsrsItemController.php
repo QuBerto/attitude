@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\OsrsItem;
 use App\Models\NpcItem;
+use App\Enums\ItemIds;
 use Illuminate\Support\Facades\Http;
 class OsrsItemController extends Controller
 {
@@ -93,21 +94,82 @@ class OsrsItemController extends Controller
 
         return response()->json($missingItems, 200);
     }
-
-    public function findApiItem( $itemId ){
-        $priceResponse = Http::withHeaders(['User-Agent' => $this->userAgent])
-            ->get('https://secure.runescape.com/m=itemdb_oldschool/api/catalogue/detail.json', ['item' => $itemId]);
-        $prices = $priceResponse->json();
-        if ($prices){
+    public function findApiItem($itemId)
+    {
+        // Initialize the ItemIds class
+        $items = new ItemIds();
+        $index = 0;
     
-            OsrsItem::create([
-                'item_id' => $itemId,
-                'name' => $prices['item']['name'],
-                'value' => $prices['item']['current']['price'] ?? 0,
-                'description' => $prices['item']['description'],
-            ]);
-            return true;
+        // Loop through the items
+        foreach ($items->getAll() as $item => $item_id) {
+            if ($index < 300) {
+                $index++;
+                continue;
+            }
+            // Check if the item already exists in the database
+            $existingItem = OsrsItem::where('item_id', $item_id)->first();
+    
+            // If the item does not exist, fetch it from the API
+            if (!$existingItem) {
+                // Make the API request to fetch item details
+                $priceResponse = Http::withHeaders(['User-Agent' => $this->userAgent])
+                    ->get('https://secure.runescape.com/m=itemdb_oldschool/api/catalogue/detail.json', ['item' => $item_id]);
+    
+                $prices = $priceResponse->json();
+                var_dump($prices);
+                // If a valid response is returned from the API
+                if ($prices && isset($prices['item'])) {
+                    $priceValue = $this->convertPrice($prices['item']['current']['price'] ?? 0);
+                    // Create or update the item in the database
+                    OsrsItem::updateOrCreate([
+                        'item_id' => $item_id
+                    ], [
+                        'name' => $prices['item']['name'],
+                        'value' => $priceValue ?? 0,
+                        'description' => $prices['item']['description'],
+                        'type' => 'api'
+                    ]);
+                }
+                else{
+                    OsrsItem::updateOrCreate([
+                        'item_id' => $item_id
+                    ], [
+                        'name' => $item,
+                        'value' => 0,
+                        'description' => '',
+                        'type' => 'manual'
+                    ]);
+                }
+            } else {
+                // Item already exists in the database, skip the API request
+                continue;
+            }
+    
+            $index++;
+    
+            // Break the loop after processing 10 items (for throttling purposes)
+            if ($index > 350) {
+                dd();
+            }
         }
-        return false;
     }
+    function convertPrice($price)
+{
+    // Check if the price is a string and contains a suffix
+    if (is_string($price)) {
+        // Handle the suffixes for thousands (k), millions (m), billions (b)
+        if (strpos($price, 'k') !== false) {
+            return floatval($price) * 1000; // Convert k to thousand
+        } elseif (strpos($price, 'm') !== false) {
+            return floatval($price) * 1000000; // Convert m to million
+        } elseif (strpos($price, 'b') !== false) {
+            return floatval($price) * 1000000000; // Convert b to billion
+        }
+    }
+
+    // Return the original price if no conversion was needed
+    return floatval($price);
+}
+
+    
 }

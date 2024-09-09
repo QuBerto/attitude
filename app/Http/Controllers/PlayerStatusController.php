@@ -79,7 +79,7 @@ class PlayerStatusController extends Controller
 
         // If no users were updated, return a message
         if ($recentUpdates->isEmpty()) {
-            return response()->json(['message' => 'No players were updated in the last 3 minutes'], 200);
+            return response()->json(['formatted_usernames' => 'No players are online!'], 200);
         }
 
         // Check if the format query parameter is set to 'discord'
