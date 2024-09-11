@@ -74,9 +74,12 @@ class PlayerStatusController extends Controller
         // Calculate the time for 3 minutes ago
         $threeMinutesAgo = Carbon::now()->subMinutes(3);
 
-        // Query player_status records where updated_at is within the last 3 minutes
-        $recentUpdates = PlayerStatus::where('updated_at', '>=', $threeMinutesAgo)->get(['user_name']);
-
+ 
+// Query the records, sort by discord_user_id and combat_level
+$recentUpdates = PlayerStatus::where('updated_at', '>=', $threeMinutesAgo)
+->orderBy('discord_user_id')
+->orderBy('combat_level')
+->get(['user_name', 'discord_user_id', 'combat_level']);
         // If no users were updated, return a message
         if ($recentUpdates->isEmpty()) {
             return response()->json(['formatted_usernames' => 'No players are online!'], 200);
