@@ -77,8 +77,8 @@ class PlayerStatusController extends Controller
  
 // Query the records, sort by discord_user_id and combat_level
 $recentUpdates = PlayerStatus::where('updated_at', '>=', $threeMinutesAgo)
-->orderBy('discord_user_id')
-->orderBy('combat_level')
+->orderBy('discord_user_id', 'asc')  // Sort by discord_user_id in ascending order
+->orderBy('combat_level', 'desc')    // Sort by combat_level in descending order
 ->get(['user_name', 'discord_user_id', 'combat_level']);
         // If no users were updated, return a message
         if ($recentUpdates->isEmpty()) {
