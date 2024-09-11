@@ -72,30 +72,45 @@ class PlayerStatusController extends Controller
     public function getRecentUpdates(Request $request)
     {
         // Calculate the time for 3 minutes ago
-        $threeMinutesAgo = Carbon::now()->subMinutes(3);
-
- 
-// Query the records, sort by discord_user_id and combat_level
-$recentUpdates = PlayerStatus::where('updated_at', '>=', $threeMinutesAgo)
-->orderBy('discord_user_id', 'asc')  // Sort by discord_user_id in ascending order
-->orderBy('combat_level', 'desc')    // Sort by combat_level in descending order
-->get(['user_name', 'discord_user_id', 'combat_level']);
+        $threeMinutesAgo = Carbon::now()->subMinutes(2);
+    
+        // Query the records, sort by discord_user_id and combat_level
+        $recentUpdates = PlayerStatus::where('updated_at', '>=', $threeMinutesAgo)
+            ->orderBy('discord_user_id', 'asc')  // Sort by discord_user_id in ascending order
+            ->orderBy('combat_level', 'desc')    // Sort by combat_level in descending order
+            ->get(['user_name', 'discord_user_id', 'combat_level']);
+    
         // If no users were updated, return a message
         if ($recentUpdates->isEmpty()) {
             return response()->json(['formatted_usernames' => 'No players are online!'], 200);
         }
-
+    
         // Check if the format query parameter is set to 'discord'
         if ($request->query('format') === 'discord') {
+            // Track the previous discord_user_id to detect multiple accounts
+            $previousDiscordUserId = null;
+    
             // Format the usernames as a string suitable for Discord
-            $usernames = $recentUpdates->pluck('user_name')->map(function($name) {
-                return "<:Achiever:1282080229564616855> $name"; // Surround each username with backticks for Discord formatting
+            $usernames = $recentUpdates->map(function($player) use (&$previousDiscordUserId) {
+                // Detect if this is the second or subsequent account of the same Discord user
+                if ($player->discord_user_id === $previousDiscordUserId) {
+                    // Indent or use a connected symbol for the second account
+                    $formattedName = "<:Achiever:1282080229564616855> ➔ $player->user_name"; // Arrow or similar symbol
+                } else {
+                    // Normal formatting for the first account
+                    $formattedName = "<:Achiever:1282080229564616855> $player->user_name";
+                }
+    
+                // Update the previousDiscordUserId to the current one for the next iteration
+                $previousDiscordUserId = $player->discord_user_id;
+    
+                return $formattedName;
             })->implode('\n');
-
+    
             // Return the formatted list
             return response()->json(['formatted_usernames' => $usernames], 200);
         }
-
+    
         // Return the list of usernames in default format (JSON array)
         return response()->json($recentUpdates, 200);
     }
