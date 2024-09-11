@@ -46,7 +46,7 @@ class PlayerStatusController extends Controller
         Log::error('Validated', [$token, $request->all()]);
         // Find or create a PlayerStatus record for this Discord user
         $playerStatus = PlayerStatus::updateOrCreate(
-            ['discord_user_id' => $discordUser->id], // Use discord_user_id to ensure only one record per user
+            ['user_name' => $data['data']['userName']], // Use discord_user_id to ensure only one record per user
             [
                 'user_name' => $data['data']['userName'],
                 'account_type' => $data['data']['accountType'],

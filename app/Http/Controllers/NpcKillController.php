@@ -45,7 +45,7 @@ class NpcKillController extends Controller
         $data = $request->input();
         $killdata = $data['data'];
         $timestamp = $data['timestamp'];
-        Log::error('Creating npc kill', $request->all());
+
         $npcKill = NpcKill::create([
             'npc_id' => $killdata['npcId'],
             'ge_price' => $killdata['gePrice'],
@@ -58,7 +58,6 @@ class NpcKillController extends Controller
   
         foreach ($killdata['items'] as $item) {
 
-            Log::error('Creating npc items', $request->all());
             $osrsItem = OsrsItem::where('item_id', $item['id'])->first();
 
             if ($osrsItem) {
