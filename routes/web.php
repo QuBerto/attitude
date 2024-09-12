@@ -21,6 +21,7 @@ use App\Http\Controllers\WordGuessController;
 use App\Http\Controllers\ScreenshotController;
 use App\Http\Controllers\DropController;
 use \App\Http\Controllers\Api\BingoController;
+use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\NpcKillController;
 use App\Http\Controllers\PlayerStatusController;
 use App\Http\Controllers\OsrsItemController;
@@ -53,7 +54,7 @@ Route::get('/calendar2', function () {
 
 
 Route::post('/capture-screenshot', [ScreenshotController::class, 'capture'])->name('capture.screenshot');
-Route::get('/', [BingoCardController::class, 'frontend_temp']);
+Route::get('/', [FrontendController::class, 'homepage']);
 Route::post('/submit-guess', [WordGuessController::class, 'submitGuess']);
 
 Route::get('/dashboard', function () {
