@@ -52,8 +52,27 @@ class FetchOsrsNpcs extends Command
         foreach ($npcs->getAll() as $npc => $npc_id) {
             // Fetch data by NPC ID
             $npcdb = Npc::where('npc_id', $npc_id)->first();
-            $data = $this->getByNpcId($npc_id);
+            
             if($npcdb){
+                $media = $npcdb->getFirstMedia();
+                if (!$media) {
+                    $data = $this->getByNpcId($npc_id);
+                    if (!$data){
+                        $this->warn("data not found: " . $npc_id);
+                        continue;
+                    }
+                    $path = 'scrape/npc_images/' . $data['image_url'];
+
+                    // Check if the image exists before proceeding
+                    if (Storage::exists($path)) {
+                        $npcdb
+                            ->addMedia(Storage::path($path)) // Ensure the full file path is passed
+                            ->toMediaCollection();
+                    } else {
+                        // Handle the case where the image does not exist (optional)
+                        $this->warn("Image not found: " . $path);
+                    }
+                }
                 continue;
             }
             $data = $this->getByNpcId($npc_id);
@@ -154,7 +173,9 @@ class FetchOsrsNpcs extends Command
             // Create an associative array with npc_id as the key
             $items = [];
             foreach ($rows as $row) {
+                
                 if (isset($row[1])) {
+       
                     $items[$row[1]] = [
                         'name' => $row[0],       // $row[0] is the NPC name
                         'image_url' => $row[2]   // $row[2] is the image URL
