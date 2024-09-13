@@ -52,6 +52,7 @@ class FetchOsrsItems extends Command
      */
     public function findApiItem()
     {
+        Cache::forget('items_from_csv');
         // Initialize the ItemIds class
         $items = new ItemIds();
         $index = 0;
