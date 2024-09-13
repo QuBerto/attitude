@@ -114,10 +114,12 @@ class FetchOsrsItems extends Command
                         'description' => '',
                         'type' => 'manual'
                     ]);
-
+                    
                     if ($data && $data['image_url']){
+                             // Define the path to your CSV file
+                        $path = 'scrape/item_images/'. $data['image_url'];
                         $existingItem
-                        ->addMediaFromUrl($data['image_url'])
+                        ->addMedia($path)
                         ->toMediaCollection();
                     }
                     if ($data && $data['name'] && $data['name'] != 'Null'){
@@ -128,10 +130,13 @@ class FetchOsrsItems extends Command
             } else {
                 $media = $existingItem->getFirstMedia();
                 if (!$media){
-                    $data = $this->getByItemId( $existingItem->item_id );
+                    $data = $this->getByItemId( $item_id );
                     if ($data && $data['image_url']){
+                           // Define the path to your CSV file
+                        $path = 'scrape/item_images/'. $data['image_url'];
+                        
                         $existingItem
-                        ->addMediaFromUrl($data['image_url'])
+                        ->addMedia($path)
                         ->toMediaCollection();
                     }
                     if ($data && $data['name'] && $data['name'] != 'Null'){
@@ -142,10 +147,11 @@ class FetchOsrsItems extends Command
                     $existingItem->save(); 
                     $this->info("No media. url={$data['image_url']}");
                 }
+              
                 // Log when the item already exists
                 //$this->info("Item ID: {$item_id} already exists. Skipping API fetch.");
             }
-
+          
             $index++;
         }
     }
@@ -187,7 +193,7 @@ class FetchOsrsItems extends Command
 
     if (!$items) {
         // Define the path to your CSV file
-        $path = 'scrape/osrs_items.csv';
+        $path = 'scrape/item_images/osrs_items.csv';
 
         // Get the content of the CSV file
         $csvData = Storage::get($path);

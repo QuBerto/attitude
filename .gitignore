@@ -22,4 +22,8 @@ public/screenshots/*
 public/npcs
 public/osrs-items
 storage/app/scrape/item_scrape_progress.txt
-storage/app/
+storage/app/*
+!/storage/app/scrape/
+
+# Allow contents of storage/app/scrape directory
+!/storage/app/scrape/*
