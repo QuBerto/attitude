@@ -102,7 +102,7 @@ class FetchOsrsItems extends Command
                 } else {
                     // Log when no data is available
                     $this->warn("No data found for item ID: {$item_id}. Using default values.");
-                    $data = $this->getByItemId( $existingItem->item_id );
+                    $data = $this->getByItemId( $item_id );
 
                     // If no data, create with default values
                     $existingItem = OsrsItem::updateOrCreate([
