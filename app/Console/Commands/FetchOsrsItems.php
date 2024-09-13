@@ -61,7 +61,7 @@ class FetchOsrsItems extends Command
 
         // Get the content of the CSV file
         $csvData = Storage::get($path);
-
+        dd($csvData);
         // Convert CSV data into an array
         $rows = array_map('str_getcsv', explode("\n", $csvData));
 
