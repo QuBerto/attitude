@@ -21,3 +21,5 @@ yarn-error.log
 public/screenshots/*
 public/npcs
 public/osrs-items
+storage/app/scrape/item_scrape_progress.txt
+storage/app/

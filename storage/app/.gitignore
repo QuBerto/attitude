@@ -1,4 +1,5 @@
 /*
+scrape/npc_scrape_progress.txt
+scrape/item_scrape_progress.txt
 !/public/
-!/scrape
 !.gitignore
