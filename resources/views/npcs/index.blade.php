@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('OSRS Items') }}
+            {{ __('OSRS Npcs') }}
         </h2>
     </x-slot>
 
@@ -13,14 +13,14 @@
                     <div class="mb-4 flex justify-between items-center">
                         <!-- Search bar -->
                         <!-- Search bar -->
-                        <form method="GET" action="{{ route('osrs-items.index') }}" class="flex items-center space-x-4">
+                        <form method="GET" action="{{ route('npcs.index') }}" class="flex items-center space-x-4">
                             <input type="text" name="search" value="{{ request('search') }}"
                                 placeholder="Search by name or description"
                                 class="dark:bg-gray-700 text-gray-900 dark:text-gray-100 border rounded py-2 px-4">
 
                             <!-- Add the hidden inputs to keep the per_page, sort_by, and sort_order values -->
                             <input type="hidden" name="per_page" value="{{ request('per_page', 10) }}">
-                            <input type="hidden" name="sort_by" value="{{ request('sort_by', 'item_id') }}">
+                            <input type="hidden" name="sort_by" value="{{ request('sort_by', 'npc_id') }}">
                             <input type="hidden" name="sort_order" value="{{ request('sort_order', 'asc') }}">
 
                             <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">Search</button>
@@ -29,9 +29,9 @@
 
                         <!-- Items per page dropdown -->
                         <!-- Items per page dropdown -->
-                        <form method="GET" action="{{ route('osrs-items.index') }}">
+                        <form method="GET" action="{{ route('npcs.index') }}">
                             <input type="hidden" name="search" value="{{ request('search') }}">
-                            <input type="hidden" name="sort_by" value="{{ request('sort_by', 'item_id') }}">
+                            <input type="hidden" name="sort_by" value="{{ request('sort_by', 'npc_id') }}">
                             <input type="hidden" name="sort_order" value="{{ request('sort_order', 'asc') }}">
 
                             <select name="per_page" onchange="this.form.submit()"
@@ -54,8 +54,8 @@
                                 <!-- Sortable columns -->
                                 <th class="py-3 px-4 uppercase font-semibold text-sm">
                                     <a
-                                        href="{{ route('osrs-items.index', ['sort_by' => 'item_id', 'sort_order' => request('sort_order') === 'asc' ? 'desc' : 'asc']) }}">
-                                        Item ID @if (request('sort_by') === 'item_id')
+                                        href="{{ route('npcs.index', ['sort_by' => 'npc_id', 'sort_order' => request('sort_order') === 'asc' ? 'desc' : 'asc']) }}">
+                                        Npc ID @if (request('sort_by') === 'npc_id')
                                             ({{ request('sort_order') }})
                                         @endif
                                     </a>
@@ -63,40 +63,31 @@
                                 <th class="py-3 px-4 uppercase font-semibold text-sm">Image</th>
                                 <th class="py-3 px-4 uppercase font-semibold text-sm">
                                     <a
-                                        href="{{ route('osrs-items.index', ['sort_by' => 'name', 'sort_order' => request('sort_order') === 'asc' ? 'desc' : 'asc']) }}">
+                                        href="{{ route('npcs.index', ['sort_by' => 'name', 'sort_order' => request('sort_order') === 'asc' ? 'desc' : 'asc']) }}">
                                         Name @if (request('sort_by') === 'name')
                                             ({{ request('sort_order') }})
                                         @endif
                                     </a>
                                 </th>
-                                <th class="py-3 px-4 uppercase font-semibold text-sm">
-                                    <a
-                                        href="{{ route('osrs-items.index', ['sort_by' => 'value', 'sort_order' => request('sort_order') === 'asc' ? 'desc' : 'asc']) }}">
-                                        Value @if (request('sort_by') === 'value')
-                                            ({{ request('sort_order') }})
-                                        @endif
-                                    </a>
-                                </th>
-                                <th class="py-3 px-4 uppercase font-semibold text-sm">Description</th>
                                 <th class="py-3 px-4 uppercase font-semibold text-sm">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="text-gray-700 dark:text-gray-300">
-                            @foreach ($items as $item)
+                            @foreach ($npcs as $item)
                                 <tr>
-                                    <td class="py-3 px-4">{{ $item->item_id }}</td>
+                                    <td class="py-3 px-4">{{ $item->npc_id }}</td>
                                     <td class="py-3 px-4">
-                                        @if ($item->getFirstMediaUrl())
-                                            <img src="{{ $item->getFirstMediaUrl() }}" />
+                               
+                                        @if ($item->getFirstMediaUrl('npcs'))
+                                            <img src="{{ $item->getFirstMediaUrl('npcs') }}" />
                                         @endif
                                     </td>
                                     <td class="py-3 px-4">{{ $item->name }}</td>
-                                    <td class="py-3 px-4">{{ $item->value }}</td>
-                                    <td class="py-3 px-4">{{ $item->description }}</td>
+                                
                                     <td class="py-3 px-4">
-                                        <a href="{{ route('osrs-items.edit', $item->item_id) }}"
+                                        <a href="{{ route('npcs.edit', $item->npc_id) }}"
                                             class="bg-blue-500 text-white font-bold py-1 px-3 rounded">Edit</a>
-                                        <form action="{{ route('osrs-items.destroy', $item->item_id) }}" method="POST"
+                                        <form action="{{ route('npcs.destroy', $item->npc_id) }}" method="POST"
                                             style="display:inline;">
                                             @csrf
                                             @method('DELETE')
@@ -112,10 +103,10 @@
 
                     <!-- Pagination links -->
                     <div class="pagination">
-                        {{ $items->appends(request()->query())->links() }}
+                        {{ $npcs->appends(request()->query())->links() }}
                     </div>
 
-                    @if ($items->isEmpty())
+                    @if ($npcs->isEmpty())
                         <p class="text-gray-500 dark:text-gray-400 mt-4">No OSRS items found.</p>
                     @endif
                 </div>
@@ -124,7 +115,7 @@
     </div>
 
 
-    <div class="py-12">
+    {{-- <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
@@ -143,10 +134,10 @@
                                     <td class="py-3 px-4">{{ $item }}</td>
                                     <td class="py-3 px-4">
                                         <!-- Link to the create page with the item_id as a GET parameter -->
-                                        <a href="{{ route('osrs-items.create', ['item_id' => $item]) }}"
+                                        {{-- <a href="{{ route('npcs.create', ['npc' => $item]) }}"
                                             class="bg-blue-500 text-white font-bold py-1 px-3 rounded">
                                             Create
-                                        </a>
+                                        </a> 
                                     </td>
                                 </tr>
                             @endforeach
@@ -159,5 +150,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 </x-app-layout>

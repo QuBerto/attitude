@@ -14,6 +14,7 @@ class AttitudeDiscord
 
     public function __construct($guildId, $token)
     {
+
         $this->guildId = $guildId;
         $this->token = $token;
         $this->rolId = '1233119240496873616';
@@ -60,6 +61,13 @@ class AttitudeDiscord
 
         foreach ($data as $role) {
         }
+    }
+
+    public function get_emojis()
+    {
+
+        $data = $this->connect('emojis');
+        return $data;
     }
 
     public function get_users()
@@ -261,7 +269,7 @@ class AttitudeDiscord
         return $updatedMembers;
     }
 
-    private function updateMemberRoles($memberId, $memberRoles)
+    public function updateMemberRoles($memberId, $memberRoles)
     {
         // Discord API endpoint for updating member roles
         $url = "https://discord.com/api/guilds/{$this->guildId}/members/{$memberId}";
@@ -285,7 +293,7 @@ class AttitudeDiscord
             CURLOPT_POSTFIELDS => json_encode($data),
             CURLOPT_RETURNTRANSFER => true
         ]);
-
+   
         // Execute cURL request
         $response = curl_exec($ch);
 
@@ -299,9 +307,10 @@ class AttitudeDiscord
 
         // Decode the JSON response
         $responseData = json_decode($response, true);
-
+        dd($response);
         // Check if the response contains any errors
         if (isset($responseData['message'])) {
+            dd($responseData);
             return false; // Error occurred
         }
 

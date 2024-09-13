@@ -25,6 +25,9 @@ use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\NpcKillController;
 use App\Http\Controllers\PlayerStatusController;
 use App\Http\Controllers\OsrsItemController;
+use App\Http\Controllers\NpcController;
+use App\Http\Controllers\EmojiController;
+
 
 
 
@@ -60,9 +63,9 @@ Route::post('/submit-guess', [WordGuessController::class, 'submitGuess']);
 Route::get('/dashboard', function () {
     return redirect()->route('tasks.team', ['team' => 1, 'bingo' => 1]);
 })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/discord-users/roles', [DiscordUserController::class, 'fixUserRoles'])->name('discord-users.fixUserRoles');
 
-
-Route::middleware('auth')->group(function () {
+Route::middleware('auth')->prefix('backend')->group(function () {
     Route::get('/findApiItem/{item_id}', [OsrsItemController::class, 'findApiItem'])->name('find-item');
     //Discord Users
     Route::get('/discord-users', [DiscordUserController::class, 'index'])->name('discord-users.index');
@@ -70,6 +73,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/discord-users/{discordUser}/assign-player', [DiscordUserController::class, 'assignPlayer'])->name('discord-users.assign-player');
     Route::delete('/discord-users/{discordUser}/unassign-player/{account}', [DiscordUserController::class, 'unassignPlayer'])->name('discord-users.unassign-player');
     Route::get('/discord-users/unconnected', [DiscordUserController::class, 'unconnected'])->name('discord-users.unconnected');
+    
     //Discord Roles
     Route::get('/discord-roles', [DiscordRoleController::class, 'index'])->name('discord-roles.index');
     Route::get('/discord-roles/{discordRole}', [DiscordRoleController::class, 'show'])->name('discord-roles.show');
@@ -82,7 +86,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('bingo-cards', BingoCardController::class);
     Route::resource('tiles', TileController::class)->only(['update']);
     Route::resource('tasks', TaskController::class)->only(['store']);
-    Route::resource('osrs-items', OsrsItemController::class);
+    Route::resource('/osrs-items', OsrsItemController::class);
+    Route::resource('/npcs', NpcController::class);
+    Route::resource('emojis', EmojiController::class);
     Route::post('teams/{card}/store', [TeamController::class, 'store'])->name('teams.store');
     Route::post('teams/{team}/addMember', [TeamController::class, 'addMember'])->name('teams.addMember');
     Route::post('/teams/{team}/removeMember', [TeamController::class, 'removeMember'])->name('teams.removeMember');

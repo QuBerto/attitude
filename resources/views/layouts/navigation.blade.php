@@ -27,6 +27,9 @@
                     <x-nav-link :href="route('osrs-items.index')" :active="request()->routeIs('osrs-items.index')">
                         {{ __('Items') }}
                     </x-nav-link>
+                    <x-nav-link :href="route('npcs.index')" :active="request()->routeIs('npcs.index')">
+                        {{ __('Npcs') }}
+                    </x-nav-link>
                 </div>
             </div>
 

@@ -30,9 +30,11 @@ class SyncDiscordUsers extends Command
      */
     public function handle(AttitudeDiscord $discord)
     {
+        // Connect to Discord and get the members and roles
         $discordMembers = $discord->connect('members?limit=1000');
         $roles = $discord->listRoles();
-   
+
+        // Sync roles
         foreach ($roles as $roleData) {
             DiscordRole::updateOrCreate(
                 ['role_id' => $roleData['id']],
@@ -51,9 +53,16 @@ class SyncDiscordUsers extends Command
                     'flags' => $roleData['flags'],
                 ]
             );
-            $this->info('Synced user '. $roleData['name']);
+            $this->info('Synced role '. $roleData['name']);
         }
+
+        // Collect current member IDs from the API
+        $currentMemberIds = [];
+
+        // Sync users
         foreach ($discordMembers as $member) {
+            $currentMemberIds[] = $member['user']['id'];
+
             // Sync user
             $user = DiscordUser::updateOrCreate(
                 ['discord_id' => $member['user']['id']],
@@ -64,28 +73,31 @@ class SyncDiscordUsers extends Command
                     'discriminator' => $member['user']['discriminator'],
                 ]
             );
-            if (strpos($member['user']['username'], "erva") !== false){
-                $this->info('Synced user '. print_r($member,1));
+
+            // Optionally log users with "erva" in the username
+            if (strpos($member['user']['username'], "erva") !== false) {
                 $this->info('Synced user '. $member['user']['username']);
             }
-            
 
             // Sync roles
             $roleIds = [];
             foreach ($member['roles'] as $roleId) {
-                $role = DiscordRole::where('role_id', $roleId)->first( );
-                if ($role){
+                $role = DiscordRole::where('role_id', $roleId)->first();
+                if ($role) {
                     $roleIds[] = $role->id;
+                } else {
+                    $this->error('Cannot find role: ' . $roleId);
                 }
-                else{
-                    $this->error('Cant find .'.$roleId);
-                }
-                
             }
             $user->roles()->sync($roleIds);
         }
 
+        // Remove users no longer present in the Discord member list
+        DiscordUser::whereNotIn('discord_id', $currentMemberIds)->delete();
+        $this->info('Removed users not present in Discord anymore.');
+
         $this->info('Discord users synchronized successfully.');
         return 0;
-    }
+}
+
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -49,13 +48,20 @@ class SyncWiseOldManUsers extends Command
             $members = $this->wiseOldManService->getGroupMembers();
 
             if ($members) {
+                // Collect all the wom_ids from the API response
+                $currentMemberIds = [];
+
                 foreach ($members as $member) {
+                  
                     $player = $member['player'];
-                    
-                    RSAccount::updateOrCreate(
+                    $currentMemberIds[] = $player['id']; // Store the wom_id
+
+                    // Update or create RSAccount records
+                    $result = RSAccount::updateOrCreate(
                         ['wom_id' => $player['id']],
                         [
                             'username' => $player['username'],
+                            'role' => $member['role'] ?? null,
                             'display_name' => $player['displayName'] ?? null,
                             'type' => $player['type'] ?? null,
                             'build' => $player['build'] ?? null,
@@ -73,9 +79,13 @@ class SyncWiseOldManUsers extends Command
                             'last_imported_at' => isset($player['lastImportedAt']) ? \Carbon\Carbon::parse($player['lastImportedAt']) : null,
                         ]
                     );
+      
                 }
 
-                $this->info('Wise Old Man users synchronized successfully.');
+                // Delete users that are no longer in the Wise Old Man group
+                RSAccount::whereNotIn('wom_id', $currentMemberIds)->delete();
+
+                $this->info('Wise Old Man users synchronized and old users removed successfully.');
             } else {
                 $this->error('No members found for the specified group.');
             }

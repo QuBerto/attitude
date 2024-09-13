@@ -14,6 +14,7 @@ class RSAccount extends Model
         'username',
         'display_name',
         'type',
+        'role',
         'build',
         'status',
         'country',

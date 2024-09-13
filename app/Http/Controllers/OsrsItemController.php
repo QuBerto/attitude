@@ -11,17 +11,37 @@ class OsrsItemController extends Controller
 {
     protected $userAgent = 'AttitudeBot/1.0 (https://attitude.com;)';
     // Display all OSRS items
-    public function index()
+    public function index(Request $request)
     {
-        $items = OsrsItem::all();
-         // Use a left join to find NPC items that are missing from the osrs_items table
-            // Use a left join and select distinct item_id where osrs_items.item_id is null
+        // Default values
+        $perPage = $request->input('per_page', 50); // Default 10 items per page
+        $search = $request->input('search', '');    // Search term (if any)
+        $sortBy = $request->input('sort_by', 'item_id'); // Default sort by 'item_id'
+        $sortOrder = $request->input('sort_order', 'asc'); // Default ascending order
+
+        // Query the OSRS items with filters and sorting
+        $items = OsrsItem::when($search, function ($query) use ($search) {
+                return $query->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('description', 'like', '%' . $search . '%');
+            })
+            ->orderBy($sortBy, $sortOrder)
+            ->paginate($perPage);
+
+        // Find NPC items that are missing from the osrs_items table
         $missingItems = NpcItem::leftJoin('osrs_items', 'npc_items.item_id', '=', 'osrs_items.item_id')
-        ->whereNull('osrs_items.item_id') // Check where osrs_items.item_id is null
-        ->distinct() // Ensure only unique item_ids are selected
-        ->pluck('npc_items.item_id'); // Only retrieve the item_id field
-   
-        return view('osrs-items.index', ['items' => $items, 'missingItems' => $missingItems]);
+            ->whereNull('osrs_items.item_id') // Check where osrs_items.item_id is null
+            ->distinct() // Ensure only unique item_ids are selected
+            ->pluck('npc_items.item_id'); // Only retrieve the item_id field
+
+        // Return the view with paginated items, missing items, and filters
+        return view('osrs-items.index', [
+            'items' => $items,
+            'missingItems' => $missingItems,
+            'perPage' => $perPage,
+            'search' => $search,
+            'sortBy' => $sortBy,
+            'sortOrder' => $sortOrder,
+        ]);
     }
 
     // Display the form for creating a new item

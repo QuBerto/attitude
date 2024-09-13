@@ -11503,4 +11503,10 @@ class NpcIds
         $name = array_search($id, $constants);
         return $name ? $name : 'Unknown';
     }
+    // Method to get all constants
+public static function getAll()
+{
+    $class = new \ReflectionClass(__CLASS__);
+    return $class->getConstants();
+}
 }

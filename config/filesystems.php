@@ -43,7 +43,27 @@ return [
             'visibility' => 'public',
             'throw' => false,
         ],
-
+        'osrs-items' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/osrs-items'),
+            'url' => env('APP_URL').'/storage/osrs-items',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+        'npcs' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/npcs'), // Store NPC images here
+            'url' => env('APP_URL').'/storage/npcs',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+        'emoji-images' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/emoji-images'),
+            'url' => env('APP_URL').'/storage/emoji-images',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
@@ -71,6 +91,9 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
+        public_path('osrs-items') => storage_path('app/public/osrs-items'),
+        public_path('npcs') => storage_path('app/public/npcs'),
+        public_path('emoji-images') => storage_path('app/public/emoji-images'),
     ],
 
 ];

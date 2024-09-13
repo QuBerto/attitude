@@ -12,13 +12,15 @@ scraper = cloudscraper.create_scraper()
 npc_base_url = "https://everythingrs.com/tools/osrs/npclist/"
 item_base_url = "https://everythingrs.com/tools/osrs/itemlist/"
 
+directory = "storage/app/scrape/"
+
 # Progress files to keep track of last successfully scraped page
-npc_progress_file = 'npc_scrape_progress.txt'
-item_progress_file = 'item_scrape_progress.txt'
+npc_progress_file = directory + 'npc_scrape_progress.txt'
+item_progress_file = directory + 'item_scrape_progress.txt'
 
 # CSV files for storing data
-npc_csv_file = 'osrs_npcs.csv'
-item_csv_file = 'osrs_items.csv'
+npc_csv_file = directory + 'osrs_npcs.csv'
+item_csv_file = directory + 'osrs_items.csv'
 
 # Function to load the last saved page number for scraping
 def load_last_page(progress_file):

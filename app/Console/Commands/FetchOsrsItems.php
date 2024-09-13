@@ -6,6 +6,10 @@ use Illuminate\Console\Command;
 use App\Models\OsrsItem;
 use App\Enums\ItemIds;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+
+
 
 class FetchOsrsItems extends Command
 {
@@ -52,6 +56,15 @@ class FetchOsrsItems extends Command
         $items = new ItemIds();
         $index = 0;
 
+        // Define the path to your CSV file
+        $path = 'scrape/osrs_items.csv'; // Assuming 'items.csv' is the file name in the 'scrape' directory
+
+        // Get the content of the CSV file
+        $csvData = Storage::get($path);
+
+        // Convert CSV data into an array
+        $rows = array_map('str_getcsv', explode("\n", $csvData));
+
         // Loop through the items
         foreach ($items->getAll() as $item => $item_id) {
             
@@ -77,10 +90,11 @@ class FetchOsrsItems extends Command
                     $this->info("Saving item: {$prices['item']['name']} (ID: {$item_id}) with price: {$priceValue}");
                     
                     // Create or update the item in the database
-                    OsrsItem::updateOrCreate([
+                    $existingItem = OsrsItem::updateOrCreate([
                         'item_id' => $item_id
                     ], [
                         'name' => $prices['item']['name'],
+                        'slug' => $item,
                         'value' => $priceValue ?? 0,
                         'description' => $prices['item']['description'],
                         'type' => 'api'
@@ -88,20 +102,48 @@ class FetchOsrsItems extends Command
                 } else {
                     // Log when no data is available
                     $this->warn("No data found for item ID: {$item_id}. Using default values.");
+                    $data = $this->getByItemId( $existingItem->item_id );
 
                     // If no data, create with default values
-                    OsrsItem::updateOrCreate([
+                    $existingItem = OsrsItem::updateOrCreate([
                         'item_id' => $item_id
                     ], [
                         'name' => $item,
+                        'slug' => $item,
                         'value' => 0,
                         'description' => '',
                         'type' => 'manual'
                     ]);
+
+                    if ($data && $data['image_url']){
+                        $existingItem
+                        ->addMediaFromUrl($data['image_url'])
+                        ->toMediaCollection();
+                    }
+                    if ($data && $data['name'] && $data['name'] != 'Null'){
+                        $existingItem->name = $data['name'];
+                        $existingItem->save();
+                    }
                 }
             } else {
+                $media = $existingItem->getFirstMedia();
+                if (!$media){
+                    $data = $this->getByItemId( $existingItem->item_id );
+                    if ($data && $data['image_url']){
+                        $existingItem
+                        ->addMediaFromUrl($data['image_url'])
+                        ->toMediaCollection();
+                    }
+                    if ($data && $data['name'] && $data['name'] != 'Null'){
+                        $existingItem->name = $data['name'];
+                        
+                    }
+                    $existingItem->slug = $item;
+                    $existingItem->save(); 
+                    $this->info("No media. url={$data['image_url']}");
+                }
                 // Log when the item already exists
-                $this->info("Item ID: {$item_id} already exists. Skipping API fetch.");
+                //$this->info("Item ID: {$item_id} already exists. Skipping API fetch.");
             }
 
             $index++;
@@ -127,4 +169,48 @@ class FetchOsrsItems extends Command
         // Return the original price if no conversion was needed
         return floatval($price);
     }
+
+    function getByItemId($item_id)
+    {
+        // Load the cached items from CSV
+        $items = $this->loadItemsFromCsv();
+
+        // Return the image_url if the item_id exists
+        return $items[$item_id] ?? null;
+    }
+
+
+    function loadItemsFromCsv()
+{
+    // Check if the data is already cached
+    $items = Cache::get('items_from_csv');
+
+    if (!$items) {
+        // Define the path to your CSV file
+        $path = 'scrape/osrs_items.csv';
+
+        // Get the content of the CSV file
+        $csvData = Storage::get($path);
+
+        // Convert CSV data into an array
+        $rows = array_map('str_getcsv', explode("\n", $csvData));
+
+        // Create an associative array with item_id as the key
+        $items = [];
+        foreach ($rows as $row) {
+            if (isset($row[1])) {
+                $items[$row[1]] = [
+                    'name' => $row[0],       // $row[0] is the item name
+                    'image_url' => $row[2]   // $row[2] is the image URL
+                ];
+            }
+        }
+
+        // Cache the data for faster future lookups (for example, for 24 hours)
+        Cache::put('items_from_csv', $items, 86400); // Cache for 24 hours (86400 seconds)
+    }
+
+    return $items;
+}
+
 }
