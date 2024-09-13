@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use ZipArchive;
-
+use Illuminate\Support\Facades\Http;
 
 class FetchOsrsItems extends Command
 {
