@@ -44,6 +44,7 @@ class FetchOsrsNpcs extends Command
      */
     public function findApiNpc()
     {
+        Cache::forget('npcs_from_csv');
         // Initialize the NpcIds class
         $npcs = new NpcIds();
 
