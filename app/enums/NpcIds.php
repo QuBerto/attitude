@@ -11509,4 +11509,21 @@ public static function getAll()
     $class = new \ReflectionClass(__CLASS__);
     return $class->getConstants();
 }
+public static function getAllIndexed()
+{
+    $class = new \ReflectionClass(__CLASS__);
+    $constants = $class->getConstants();
+    
+    $indexedArray = [];
+
+    foreach ($constants as $slug => $id) {
+        // Create an array entry with npc_slug and npc_id
+        $indexedArray[] = [
+            'npc_slug' => strtolower($slug), // Optionally transform to lowercase for consistency
+            'npc_id' => $id
+        ];
+    }
+
+    return $indexedArray;
+}
 }

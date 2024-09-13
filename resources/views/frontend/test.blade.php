@@ -68,7 +68,7 @@
                 </td>
                 <td>
                     @if($kill->npc)
-                        {{$kill->npc->name}}
+                        {{strtolower(str_replace("_", " ", $kill->npc->slug))}}
                     @else
                         {{$kill->npc_id}}
                     @endif                

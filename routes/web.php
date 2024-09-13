@@ -59,7 +59,7 @@ Route::get('/calendar2', function () {
 Route::post('/capture-screenshot', [ScreenshotController::class, 'capture'])->name('capture.screenshot');
 Route::get('/', [FrontendController::class, 'homepage']);
 Route::post('/submit-guess', [WordGuessController::class, 'submitGuess']);
-
+Route::get('/all', [NpcController::class, 'all']);
 Route::get('/dashboard', function () {
     return redirect()->route('tasks.team', ['team' => 1, 'bingo' => 1]);
 })->middleware(['auth', 'verified'])->name('dashboard');

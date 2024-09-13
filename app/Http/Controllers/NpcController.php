@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Npc;
+use App\Enums\NpcIds;
 class NpcController extends Controller
 {
     public function index(Request $request)
@@ -73,4 +74,18 @@ class NpcController extends Controller
 
         return redirect()->route('npcs.index')->with('success', 'OSRS Item deleted successfully!');
     }
-}
+
+    public function all()
+    {
+        // Fetch all items from the NpcIds model
+        $item = new NpcIds();
+        
+        // Assuming getAll() returns an associative array or collection
+        $allItems = $item->getAllIndexed();
+        
+        // Convert to an indexed array (if it isn't already)
+        $indexedItems = ($allItems);
+    
+        return response()->json(['data' => $indexedItems]);
+    }
+}    
