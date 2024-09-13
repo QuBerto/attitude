@@ -1,3 +1,5 @@
+/scrape/npc_images/*
+/scrape/item_images/*
 !/scrape/
 !/public/
 !.gitignore

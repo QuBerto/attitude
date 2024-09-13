@@ -5,10 +5,10 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\OsrsItem;
 use App\Enums\ItemIds;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
+use ZipArchive;
 
 
 class FetchOsrsItems extends Command
@@ -40,9 +40,9 @@ class FetchOsrsItems extends Command
     public function handle()
     {
         $this->info('Starting OSRS items fetching process...');
-        
+
         $this->findApiItem();
-        
+
         $this->info('OSRS items fetching process completed.');
         return 0;
     }
@@ -61,13 +61,13 @@ class FetchOsrsItems extends Command
 
         // Get the content of the CSV file
         $csvData = Storage::get($path);
-      
+
         // Convert CSV data into an array
         $rows = array_map('str_getcsv', explode("\n", $csvData));
 
         // Loop through the items
         foreach ($items->getAll() as $item => $item_id) {
-            
+
             // Check if the item already exists in the database
             $existingItem = OsrsItem::where('item_id', $item_id)->first();
 
@@ -82,13 +82,13 @@ class FetchOsrsItems extends Command
                     ->get('https://secure.runescape.com/m=itemdb_oldschool/api/catalogue/detail.json', ['item' => $item_id]);
 
                 $prices = $priceResponse->json();
-                
+
                 // If a valid response is returned from the API
                 if ($prices && isset($prices['item'])) {
                     $priceValue = $this->convertPrice($prices['item']['current']['price'] ?? 0);
-                    
+
                     $this->info("Saving item: {$prices['item']['name']} (ID: {$item_id}) with price: {$priceValue}");
-                    
+
                     // Create or update the item in the database
                     $existingItem = OsrsItem::updateOrCreate([
                         'item_id' => $item_id
@@ -102,56 +102,70 @@ class FetchOsrsItems extends Command
                 } else {
                     // Log when no data is available
                     $this->warn("No data found for item ID: {$item_id}. Using default values.");
-                    $data = $this->getByItemId( $item_id );
+                    $data = $this->getByItemId($item_id);
 
                     // If no data, create with default values
                     $existingItem = OsrsItem::updateOrCreate([
                         'item_id' => $item_id
                     ], [
-                        'name' => $item,
+                        'name' => strtolower(str_replace("_", " ", $item)),
                         'slug' => $item,
                         'value' => 0,
                         'description' => '',
                         'type' => 'manual'
                     ]);
-                    
-                    if ($data && $data['image_url']){
-                             // Define the path to your CSV file
-                        $path = 'scrape/item_images/'. $data['image_url'];
-                        $existingItem
-                        ->addMedia($path)
-                        ->toMediaCollection();
+
+                    if ($data && $data['image_url']) {
+                        // Define the path to your CSV file
+                        $path = 'scrape/item_images/' . $data['image_url'];
+
+                        // Check if the image exists before proceeding
+                        if (Storage::exists($path)) {
+                            $existingItem
+                                ->addMedia(Storage::path($path)) // Ensure the full file path is passed
+                                ->toMediaCollection();
+                        } else {
+                            // Handle the case where the image does not exist (optional)
+                            Log::warning("Image not found: " . $path);
+                        }
                     }
-                    if ($data && $data['name'] && $data['name'] != 'Null'){
+                    if ($data && $data['name'] && $data['name'] != 'Null') {
                         $existingItem->name = $data['name'];
                         $existingItem->save();
                     }
                 }
             } else {
                 $media = $existingItem->getFirstMedia();
-                if (!$media){
-                    $data = $this->getByItemId( $item_id );
-                    if ($data && $data['image_url']){
-                           // Define the path to your CSV file
-                        $path = 'scrape/item_images/'. $data['image_url'];
-                        
-                        $existingItem
-                        ->addMedia($path)
-                        ->toMediaCollection();
+                if (!$media) {
+                    $data = $this->getByItemId($item_id);
+                    if ($data && $data['image_url']) {
+                        // Define the path to your image file
+                        $path = 'scrape/item_images/' . $data['image_url'];
+
+                        // Check if the image exists before proceeding
+                        if (Storage::exists($path)) {
+                            $existingItem
+                                ->addMedia(Storage::path($path)) // Ensure the full file path is passed
+                                ->toMediaCollection();
+                        } else {
+                            // Handle the case where the image does not exist (optional)
+                            Log::warning("Image not found: " . $path);
+                        }
                     }
-                    if ($data && $data['name'] && $data['name'] != 'Null'){
+                    if ($data && $data['name'] && $data['name'] != 'Null') {
                         $existingItem->name = $data['name'];
-                        
                     }
                     $existingItem->slug = $item;
-                    $existingItem->save(); 
-                    $this->info("No media. url={$data['image_url']}");
+                    $existingItem->save();
+                    if ($data) {
+                        $this->info("No media. url={$data['image_url']}");
+                    }
                 }
-              
+
                 // Log when the item already exists
                 //$this->info("Item ID: {$item_id} already exists. Skipping API fetch.");
             }
-          
+
             $index++;
         }
     }
@@ -187,36 +201,56 @@ class FetchOsrsItems extends Command
 
 
     function loadItemsFromCsv()
-{
-    // Check if the data is already cached
-    $items = Cache::get('items_from_csv');
+    {
+        // Define the paths
+        $zipPath = 'scrape/item_images.zip';
+        $csvPath = 'scrape/item_images/osrs_items.csv';
+        $extractToPath = 'scrape';
 
-    if (!$items) {
-        // Define the path to your CSV file
-        $path = 'scrape/item_images/osrs_items.csv';
+        // Check if the CSV file exists, if not, extract the zip
+        if (!Storage::exists($csvPath)) {
+            // Check if the zip file exists
+            if (Storage::exists($zipPath)) {
+                // Extract the zip file
+                $zip = new ZipArchive();
+                $zipFile = Storage::path($zipPath);
 
-        // Get the content of the CSV file
-        $csvData = Storage::get($path);
-
-        // Convert CSV data into an array
-        $rows = array_map('str_getcsv', explode("\n", $csvData));
-
-        // Create an associative array with item_id as the key
-        $items = [];
-        foreach ($rows as $row) {
-            if (isset($row[1])) {
-                $items[$row[1]] = [
-                    'name' => $row[0],       // $row[0] is the item name
-                    'image_url' => $row[2]   // $row[2] is the image URL
-                ];
+                if ($zip->open($zipFile) === true) {
+                    $zip->extractTo(Storage::path($extractToPath));
+                    $zip->close();
+                } else {
+                    throw new Exception("Unable to open the zip file.");
+                }
+            } else {
+                throw new Exception("Zip file not found.");
             }
         }
 
-        // Cache the data for faster future lookups (for example, for 24 hours)
-        Cache::put('items_from_csv', $items, 86400); // Cache for 24 hours (86400 seconds)
+        // Check if the data is already cached
+        $items = Cache::get('items_from_csv');
+
+        if (!$items) {
+            // Get the content of the CSV file
+            $csvData = Storage::get($csvPath);
+
+            // Convert CSV data into an array
+            $rows = array_map('str_getcsv', explode("\n", $csvData));
+
+            // Create an associative array with item_id as the key
+            $items = [];
+            foreach ($rows as $row) {
+                if (isset($row[1])) {
+                    $items[$row[1]] = [
+                        'name' => $row[0],       // $row[0] is the item name
+                        'image_url' => $row[2]   // $row[2] is the image URL
+                    ];
+                }
+            }
+
+            // Cache the data for faster future lookups (for example, for 24 hours)
+            Cache::put('items_from_csv', $items, 86400); // Cache for 24 hours (86400 seconds)
+        }
+
+        return $items;
     }
-
-    return $items;
-}
-
 }
