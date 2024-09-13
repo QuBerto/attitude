@@ -75,7 +75,7 @@ class FetchOsrsItems extends Command
             $this->info("Processing item: {$item} (ID: {$item_id})");
 
             // If the item does not exist, fetch it from the API
-            if (!$existingItem || !$existingItem->item_id) {
+            if (!$existingItem || !isset($existingItem->item_id)) {
                 // Make the API request to fetch item details
                 $this->info("Fetching data for item ID: {$item_id} from the API...");
                 $priceResponse = Http::withHeaders(['User-Agent' => $this->userAgent])
