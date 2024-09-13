@@ -149,7 +149,7 @@ class FetchOsrsItems extends Command
                                 ->toMediaCollection();
                         } else {
                             // Handle the case where the image does not exist (optional)
-                            Log::warning("Image not found: " . $path);
+                            $this->warn("Image not found: " . $path);
                         }
                     }
                     if ($data && $data['name'] && $data['name'] != 'Null') {
