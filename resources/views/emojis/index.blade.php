@@ -29,7 +29,12 @@
                             @foreach ($emojis as $emoji)
                                 <tr>
                                     <td class="w-1/4 py-3 px-4">{{ $emoji->emoji_id }}</td>
-                                    <td class="w-1/4 py-3 px-4">{{ $emoji->name }}</td>
+                                    <td class="w-1/4 py-3 px-4">
+                                        <div class="flex">
+                                        <img class="w-8 mr-2" src="{{$emoji->getFirstMediaUrl('images')}}"/>
+                                        <div>{{ $emoji->name }}</div>
+                                        </div>
+                                    </td>
                                     <td class="w-1/4 py-3 px-4">
                                         <a href="{{ route('emojis.edit', $emoji->id) }}" class="bg-blue-500 text-white py-1 px-3 rounded">Edit</a>
                                         <form action="{{ route('emojis.destroy', $emoji->id) }}" method="POST" style="display:inline;">

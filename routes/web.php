@@ -122,9 +122,10 @@ Route::resource('/drops', DropController::class)->only(['store', 'index']);
 // Custom route to filter drops by event code
 Route::get('/drops/event/{eventcode}', [DropController::class, 'showByEventCode'])->name('drops.byEventCode');
 Route::get('/config', function () {
-    Log::info('config request received');
     return view('config');
 });
+
+Route::get('/test', [FrontendController::class, 'kills']);
 // Resource Routes
 Route::prefix('api')->group(function () {
     Route::get('get-token', [DiscordUserController::class, 'getToken']);

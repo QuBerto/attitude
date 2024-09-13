@@ -18,7 +18,7 @@ class Emoji extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('images')
-             ->useDisk('public') // Use the 'public' disk to store files in 'storage/app/public'
+             ->useDisk('emoji-images') // Use the 'public' disk to store files in 'storage/app/public'
              ->singleFile(); // Limit to one image per emoji
     }
 }

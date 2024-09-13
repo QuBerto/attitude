@@ -21,4 +21,9 @@ class NpcKill extends Model
     {
         return $this->hasMany(NpcItem::class);
     }
+
+    public function npc()
+    {
+        return $this->belongsTo(Npc::class, 'npc_id');
+    }
 }
