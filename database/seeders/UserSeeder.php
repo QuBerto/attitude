@@ -16,6 +16,10 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
+        $User = User::all();
+        if($User){
+            return;
+        }
         $name = env('USER_NAME', 'defaultuser');
         $email = env('USER_EMAIL', 'default@example.com');
         $password = env('USER_PASSWORD') ?: Str::random(10);

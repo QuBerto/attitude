@@ -16,6 +16,10 @@ class BingoCardSeeder extends Seeder
      */
     public function run()
     {
+        $bingoCard = BingoCard::all();
+        if($bingoCard){
+            return;
+        }
         // Create a bingo card
         $bingoCard = BingoCard::create(['name' => 'OSRS Boss Bingo']);
 
