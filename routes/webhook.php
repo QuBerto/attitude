@@ -16,7 +16,7 @@ Route::prefix('webhook')->group(function () {
     Route::get('/npc_kills', [NpcKillController::class, 'index']); 
     Route::get('/npc_kills/{id}', [NpcKillController::class, 'show']);
     Route::post('/player_status', [PlayerStatusController::class, 'store']);
-    Route::post('/loot', [LootController::class, 'stroe']);
+    Route::post('/loot', [LootController::class, 'store']);
     //Route::post('{clan_secret}', [MessageController::class, 'store']);
 });
 
