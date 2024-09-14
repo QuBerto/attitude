@@ -76,6 +76,9 @@ class FetchOsrsItems extends Command
 
         // Loop through the items
         foreach ($items->getAll() as $item => $item_id) {
+            if ($item_id < 28217){
+                continue;
+            }
             // Log info about the current item being processed
             $this->info("Processing item: {$item} (ID: {$item_id})");
 
@@ -102,21 +105,42 @@ class FetchOsrsItems extends Command
 
     public function itemDoesntExists($item, $item_id)
     {
+        $prices = false; //= $this->fetchFromOsrs($item_id);
         $items = $this->fetchOsrsItems();
+        $parent_id = null;
+        $image_id = $item_id;
         if (is_array($items) && isset($items[$item_id])) {
             $name =  $items[$item_id]['name'];;
             $description =  $items[$item_id]['examine'];
             $type = 'api';
             $value = $items[$item_id]['value'];
+     
         } else {
-            $prices = false; //= $this->fetchFromOsrs($item_id);
+            if (strpos($item, "_NOTED") !== false){
+                // Remove '_NOTED' from the item name to find the base item
+                $baseItemSlug = str_replace('_NOTED', '', $item);
 
+                // Search in the database for an item with this slug (base item)
+                $baseItem = OsrsItem::where('slug', $baseItemSlug)->first();
+
+                if ($baseItem) {
+                    // If the base item is found, set it as the parent_id
+                    $parent_id = $baseItem->item_id;
+                    $image_id = $parent_id;
+                    $name = strtolower(str_replace("_", " ", $baseItem->name));  // Use the base item name
+                    $type = 'connected';  // Set type to 'connected'
+                    $this->info("Noted item found for base item: {$baseItem->name}, setting as parent.");
+                } else {
+                    $this->warn("Base item not found for noted item: {$item}");
+                    return;
+                }
+            }
             // If a valid response is returned from the API
-            if ($prices && isset($prices['item'])) {
+            elseif($prices && isset($prices['item'])) {
 
 
                 $priceValue = $this->convertPrice($prices['item']['current']['price'] ?? 0);
-
+           
                 $this->info("Saving item: {$prices['item']['name']} (ID: {$item_id}) with price: {$priceValue}");
                 $name = $prices['item']['name'];
                 $description = $prices['item']['description'];
@@ -140,18 +164,30 @@ class FetchOsrsItems extends Command
             'slug' => $item,
             'value' => $value,
             'description' => $description,
-            'type' => $type
+            'type' => $type,
+            'parent_id' => $parent_id
         ]);
 
         $media = $existingItem->getFirstMedia();
-        if (!$media && is_array($items) && isset($items[$item_id])) {
+        if (!$media && is_array($items) && isset($items[$image_id])) {
             // Define the path to your image file
             $url = 'https://oldschool.runescape.wiki/images/' . str_replace(" ", "_", $items[$item_id]['icon']);
 
-$this->warn("Image url: " . $url);
-            $existingItem
-                ->addMediaFromUrl($url) // Ensure the full file path is passed
-                ->toMediaCollection();
+            // Check if the image URL exists
+            $response = Http::head($url);  // Use the HEAD method to just check for the URL existence
+            
+            if ($response->successful()) {
+                $this->warn("Image URL exists: " . $url);
+            
+                // Add the media to the collection
+                $existingItem
+                    ->addMediaFromUrl($url)
+                    ->toMediaCollection();
+            } else {
+                $this->checkMedia($existingItem, $item, $item_id);
+                $this->warn("Image URL does not exist or is not accessible: " . $url);
+            }
+            
         } elseif (!$media && $prices && isset($prices['icon_large'])) {
             $this->downloadOsrsImage($existingItem, $prices['icon_large']);
         } else {
@@ -172,11 +208,20 @@ $this->warn("Image url: " . $url);
             if (is_array($items) && isset($items[$item_id])) {
                 // Define the path to your image file
                 $url = 'https://oldschool.runescape.wiki/images/' . str_replace(" ", "_", $items[$item_id]['icon']);
-    
-    $this->warn("Image url: " . $url);
-                $existingItem
-                    ->addMediaFromUrl($url) // Ensure the full file path is passed
-                    ->toMediaCollection();
+                // Check if the image URL exists
+                $response = Http::head($url);  // Use the HEAD method to just check for the URL existence
+         
+                if ($response->successful()) {
+                    $this->warn("Image URL exists: " . $url);
+                
+                    // Add the media to the collection
+                    $existingItem
+                        ->addMediaFromUrl($url)
+                        ->toMediaCollection();
+                } else {
+                    //$this->checkMedia($existingItem, $item, $item_id);
+                    $this->warn("Image URL does not exist or is not accessible: " . $url);
+                }
             } 
             else{
                 $data = $this->getByItemId($item_id);
