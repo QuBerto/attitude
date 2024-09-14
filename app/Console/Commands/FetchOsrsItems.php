@@ -76,9 +76,6 @@ class FetchOsrsItems extends Command
 
         // Loop through the items
         foreach ($items->getAll() as $item => $item_id) {
-            if($item_id < 21324){
-                continue;
-            }
             // Log info about the current item being processed
             $this->info("Processing item: {$item} (ID: {$item_id})");
 
@@ -171,21 +168,34 @@ $this->warn("Image url: " . $url);
     {
         $media = $existingItem->getFirstMedia();
         if (!$media) {
-            $data = $this->getByItemId($item_id);
-            if ($data && $data['image_url']) {
+            $items = $this->fetchOsrsItems();
+            if (is_array($items) && isset($items[$item_id])) {
                 // Define the path to your image file
-                $path = 'scrape/item_images/' . $data['image_url'];
-
-                // Check if the image exists before proceeding
-                if (Storage::exists($path)) {
-                    $existingItem
-                        ->addMedia(Storage::path($path)) // Ensure the full file path is passed
-                        ->toMediaCollection();
-                } else {
-                    // Handle the case where the image does not exist (optional)
-                    $this->warn("Image not found: " . $path);
+                $url = 'https://oldschool.runescape.wiki/images/' . str_replace(" ", "_", $items[$item_id]['icon']);
+    
+    $this->warn("Image url: " . $url);
+                $existingItem
+                    ->addMediaFromUrl($url) // Ensure the full file path is passed
+                    ->toMediaCollection();
+            } 
+            else{
+                $data = $this->getByItemId($item_id);
+                if ($data && $data['image_url']) {
+                    // Define the path to your image file
+                    $path = 'scrape/item_images/' . $data['image_url'];
+    
+                    // Check if the image exists before proceeding
+                    if (Storage::exists($path)) {
+                        $existingItem
+                            ->addMedia(Storage::path($path)) // Ensure the full file path is passed
+                            ->toMediaCollection();
+                    } else {
+                        // Handle the case where the image does not exist (optional)
+                        $this->warn("Image not found: " . $path);
+                    }
                 }
             }
+            
         }
     }
 
