@@ -3,15 +3,20 @@
     <style>
         .osrs-container {
             max-width: 100%;
-            display: flex;
+  
             background-color: #3B342C;
             border: 2px solid #6E6659; /* Outer border */
             border-radius: 10px; /* Outer border radius */
             box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.5); /* Shadow */
             padding: 20px; /* Padding to make room for inner border */
             position: relative; /* Important for positioning the ::before element */
+
+        }
+        .osrs-wrapper {
+            display: flex;
             gap: 20px; /* Space between kills and top loot sections */
         }
+
 
         .osrs-container::before {
             content: '';
@@ -63,16 +68,19 @@
     </style>
 
     <div class="osrs-container">
-        <!-- Kills Leaderboard Section (3/4) -->
-        <div class="kills-section">
-            <div class="my-2 leaderboard-head">
-                <div class="flex items-center justify-center gap-3">
-                    @if ($spoon && $spoon->getFirstMediaUrl('images'))
-                        <img class="h-8" src="{{ $spoon->getFirstMediaUrl('images') }}" />
-                    @endif
-                    <h1 class="rs-font rs-yellow">Attitude Monthly Golden Spoon Leaderboard</h1>
-                </div>
+        <div class="my-2 leaderboard-head">
+            <div class="flex items-center justify-center gap-3">
+                @if ($spoon && $spoon->getFirstMediaUrl('images'))
+                    <img class="h-8" src="{{ $spoon->getFirstMediaUrl('images') }}" />
+                @endif
+                <h1 class="rs-font rs-yellow">Attitude Monthly Golden Spoon Leaderboard</h1>
             </div>
+        </div>
+        <div class="osrs-wrapper">
+        <!-- Kills Leaderboard Section (3/4) -->
+        
+        <div class="kills-section">
+            
 
             <div class="leaderboard-body">
                 <table class="table w-full">
@@ -145,7 +153,7 @@
         <!-- Top 10 Total Loot Section (1/4) -->
         <div class="top-loot-section">
             <div class="my-4 leaderboard-head">
-                <h2 class="rs-font rs-yellow text-center">Top 10 Users by Total Loot (This Month)</h2>
+                <h2 class="rs-font rs-yellow text-center">Top 10</h2>
             </div>
 
             <div class="leaderboard-body">
@@ -176,5 +184,8 @@
                 </table>
             </div>
         </div>
+       
     </div>
+    <x-utc-time />
+</div>
 @stop
