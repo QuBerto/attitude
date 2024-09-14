@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Npc;
 use App\Enums\NpcIds;
+use App\Models\OsrsItem;
+
 class NpcController extends Controller
 {
     public function index(Request $request)
@@ -17,8 +19,8 @@ class NpcController extends Controller
 
         // Query the OSRS items with filters and sorting
         $npcs = Npc::when($search, function ($query) use ($search) {
-                return $query->where('name', 'like', '%' . $search . '%');
-            })
+            return $query->where('name', 'like', '%' . $search . '%');
+        })
             ->orderBy($sortBy, $sortOrder)
             ->paginate($perPage);
 
@@ -37,55 +39,55 @@ class NpcController extends Controller
         return view('npcs.create');
     }
 
+
+
     // Store a new OSRS item
-    public function store(Request $request)
-    {
-       
-    }
+    public function store(Request $request) {}
 
     // Display the form for editing an existing item
     public function edit($npc_id)
     {
-
+        $items = OsrsItem::all();
         $npc = Npc::where('npc_id', $npc_id)->firstOrFail();
-        return view('osrs-items.edit', ['item' => $npc]);
+        return view('npcs.edit', ['npc' => $npc]);
     }
 
     // Update an existing OSRS item
     public function update(Request $request, $npc_id)
     {
-        // Validate the request
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
+        $npc = Npc::where('npc_id', $npc_id)->first();
+        $npc->name = $request->input('name');
+        
+        if ($request->hasFile('image')) {
+          
+            $npc->clearMediaCollection('npcs');  // Remove old image
+            $npc->addMediaFromRequest('image')->toMediaCollection('npcs');  // Add new image
+        }
 
-        // Find and update the item
-        $item = Npc::where('npc_id', $npc_id)->firstOrFail();
-        $item->update($data);
+        $npc->save();
 
-        return redirect()->route('npcs.index')->with('success', 'OSRS Item updated successfully!');
+        // Redirect back to the same edit page with a success message
+        return redirect()->route('npcs.edit', $npc_id)->with('success', 'NPC updated successfully.');
     }
 
-    // Delete an OSRS item
     public function destroy($npc_id)
     {
-        $item = Npc::where('npc_id', $npc_id)->firstOrFail();
-        $item->delete();
-
-        return redirect()->route('npcs.index')->with('success', 'OSRS Item deleted successfully!');
+        $npc = Npc::findOrFail($npc_id);
+        $npc->delete();
+        return redirect()->route('npcs.index')->with('success', 'NPC deleted successfully.');
     }
 
     public function all()
     {
         // Fetch all items from the NpcIds model
         $item = new NpcIds();
-        
+
         // Assuming getAll() returns an associative array or collection
         $allItems = $item->getAllIndexed();
-        
+
         // Convert to an indexed array (if it isn't already)
         $indexedItems = ($allItems);
-    
+
         return response()->json(['data' => $indexedItems]);
     }
-}    
+}

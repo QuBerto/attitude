@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Validation\ValidationException;
 
 use Illuminate\Http\Request;
 use App\Models\OsrsItem;
@@ -79,18 +80,39 @@ class OsrsItemController extends Controller
     // Update an existing OSRS item
     public function update(Request $request, $item_id)
     {
-        // Validate the request
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'value' => 'nullable|integer',
-            'description' => 'nullable|string',
-        ]);
-
+       
+        try {
+            // Validate the request
+            $data = $request->validate([
+                'name' => 'required|string|max:255',
+                'value' => 'nullable|integer',
+                'description' => 'nullable|string',
+                'image' => 'nullable|image|max:2048',
+                'type' => 'required|string|in:manual,connected,api',  // Assuming these are the valid types
+                'parent_id' => 'nullable|integer|exists:osrs_items,id',  // Assuming parent_id references osrs_items table
+            ]);
+            
+        } catch (ValidationException $e) {
+            dd($e->errors());
+        }
+        
+    
         // Find and update the item
         $item = OsrsItem::where('item_id', $item_id)->firstOrFail();
         $item->update($data);
 
-        return redirect()->route('osrs-items.index')->with('success', 'OSRS Item updated successfully!');
+        // Handle image upload if a new image is provided
+        if ($request->hasFile('image')) {
+       
+            // Remove the existing media from the 'default' collection if it exists
+            $item->clearMediaCollection();
+           
+            // Add new image to the media collection
+            $item->addMediaFromRequest('image')
+                ->toMediaCollection();
+        }
+
+        return redirect()->route('osrs-items.edit', $item_id)->with('success', 'OSRS Item updated successfully!');
     }
 
     // Delete an OSRS item
