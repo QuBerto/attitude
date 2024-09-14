@@ -32,7 +32,8 @@ class fixKills extends Command
             foreach($kill->items as $item){
                 if ($item->osrsItem){
                     if ($item->osrsItem->value > 0){
-                        $value += $item->osrsItem->value;
+                        $this->info("OSRS: {$item->osrsItem->name} value: {$item->osrsItem->value} ");
+                        $value += $item->osrsItem->value * $item->quantity;
                     }
                 }
             }
