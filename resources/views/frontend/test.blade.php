@@ -42,7 +42,7 @@
 
         <div class="leaderboard-body">
             <table class="table w-full rs-font">
-                <thead class=" text-white">
+                <thead class=" ">
                     <tr>
                         <th>
                             User
@@ -58,7 +58,7 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody class="text-center rs-font">
+                <tbody class="text-center rs-font text-white">
 
 
                     @foreach ($kills as $kill)
@@ -68,13 +68,20 @@
                             </td>
                             <td>
                                 @if ($kill->npc)
-                                    {{ strtolower(str_replace('_', ' ', $kill->npc->slug)) }}
+                                @if ($kill->npc->getFirstMediaUrl('*'))
+                                <div class="flex justify-center">  
+                                <div><img src="{{$kill->npc->getFirstMediaUrl('*')}}" class="h-8"></div>
+                                    <div>{{ (str_replace('_', ' ', $kill->npc->name)) }}</div>
+                            </div>
+                                @elseif($kill->npc->name)
+                                    {{ (str_replace('_', ' ', $kill->npc->name)) }}
                                 @else
                                     {{ $kill->npc_id }}
                                 @endif
+                                @endif
                             </td>
                             <td>
-                                <ul class="flex">
+                                <ul class="flex justify-center">
                                     @foreach ($kill->items as $item)
                                         <li>
                                             @if ($item->osrsItem)
