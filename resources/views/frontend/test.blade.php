@@ -71,7 +71,7 @@
                                 @if ($kill->npc->getFirstMediaUrl('*'))
                                 <div class="flex">  
                                 <div><img src="{{$kill->npc->getFirstMediaUrl('*')}}" class="h-8"></div>
-                                    <div>{{ (str_replace('_', ' ', $kill->npc->name)) }}</div>
+                                    {{-- <div>{{ (str_replace('_', ' ', $kill->npc->name)) }}</div> --}}
                             </div>
                                 @elseif($kill->npc->name)
                                     {{ (str_replace('_', ' ', $kill->npc->name)) }}
