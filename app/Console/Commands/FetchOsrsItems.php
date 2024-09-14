@@ -76,9 +76,9 @@ class FetchOsrsItems extends Command
 
         // Loop through the items
         foreach ($items->getAll() as $item => $item_id) {
-            if ($item_id < 28217){
-                continue;
-            }
+            // if ($item_id < 28217){
+            //     continue;
+            // }
             // Log info about the current item being processed
             $this->info("Processing item: {$item} (ID: {$item_id})");
 
