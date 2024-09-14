@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhook',
             'webhook/npc_kill',
             'webhook/player_status',
+            'webhook/loot',
             'drops',
             'config'
             

@@ -9,13 +9,14 @@ use App\Http\Controllers\ClanController;
 use App\Http\Controllers\DiscordUserController;
 use App\Http\Controllers\PlayerStatusController;
 use App\Http\Controllers\NpcKillController;
-
+use App\Http\Controllers\LootController;
 
 Route::prefix('webhook')->group(function () {
     Route::post('/npc_kill', [NpcKillController::class, 'store']);
     Route::get('/npc_kills', [NpcKillController::class, 'index']); 
     Route::get('/npc_kills/{id}', [NpcKillController::class, 'show']);
     Route::post('/player_status', [PlayerStatusController::class, 'store']);
+    Route::post('/loot', [LootController::class, 'stroe']);
     //Route::post('{clan_secret}', [MessageController::class, 'store']);
 });
 
