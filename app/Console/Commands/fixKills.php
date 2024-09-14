@@ -28,6 +28,7 @@ class fixKills extends Command
         $kills = NpcKill::all();
         foreach($kills as $kill){
             $value = 0;
+            
             foreach($kill->items as $item){
                 if ($item->osrsItem){
                     if ($item->osrsItem->value > 0){
@@ -35,6 +36,7 @@ class fixKills extends Command
                     }
                 }
             }
+            $this->info("Kill ID: {$kill->id} value set to: {$value}");
             $kill->ge_price = $value;
             $kill->save();
         }
