@@ -401,7 +401,7 @@ class FetchOsrsItems extends Command
                         }
 
                         // Add the price data to the item
-                        $item['average_price'] = $averagePrice;
+                        $item['value'] = $averagePrice;
                     } else {
                         // If no price data exists, set average price to 0
                         $item['average_price'] = 0;
