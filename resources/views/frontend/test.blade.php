@@ -13,7 +13,7 @@
             box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.5);
             /* Soft shadow around */
             position: relative;
-            padding: 10px;
+            padding: 10px 20px;
         }
 
         .osrs-container::before {
@@ -41,13 +41,13 @@
         </div>
 
         <div class="leaderboard-body">
-            <table class="table w-full rs-font">
-                <thead class=" ">
+            <table class="table w-full ">
+                <thead class=" rs-font ">
                     <tr>
-                        <th>
+                        <th class="text-left">
                             User
                         </th>
-                        <th>
+                        <th class="text-left">
                             NPC
                         </th>
                         <th>
@@ -58,18 +58,18 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody class="text-center rs-font text-white">
+                <tbody class="text-center  text-white">
 
 
                     @foreach ($kills as $kill)
                         <tr>
-                            <td>
+                            <td class="text-left">
                                 {{ $kill->discordUser->username }}
                             </td>
-                            <td>
+                            <td class="text-left">
                                 @if ($kill->npc)
                                 @if ($kill->npc->getFirstMediaUrl('*'))
-                                <div class="flex justify-center">  
+                                <div class="flex">  
                                 <div><img src="{{$kill->npc->getFirstMediaUrl('*')}}" class="h-8"></div>
                                     <div>{{ (str_replace('_', ' ', $kill->npc->name)) }}</div>
                             </div>
