@@ -59,7 +59,9 @@ class FetchOsrsItems extends Command
      */
     public function findApiItem($force)
     {
-        Cache::forget('items_from_csv');
+        Cache::forget('osrs_items_data');
+        
+        
         // Initialize the ItemIds class
         $items = new ItemIds();
         $index = 0;
@@ -71,9 +73,7 @@ class FetchOsrsItems extends Command
         // Get the content of the CSV file
         $csvData = Storage::get($path);
 
-        // Convert CSV data into an array
-        $rows = array_map('str_getcsv', explode("\n", $csvData));
-
+       
         // Loop through the items
         foreach ($items->getAll() as $item => $item_id) {
             // if ($item_id < 28217){
@@ -368,24 +368,47 @@ class FetchOsrsItems extends Command
 
         // Check if the data is already cached
         return Cache::remember($cacheKey, $cacheDuration, function () {
-            // Define the URL to fetch data from
-            $url = 'https://prices.runescape.wiki/api/v1/osrs/mapping';
+            // Define the URLs to fetch data from
+            $urlItems = 'https://prices.runescape.wiki/api/v1/osrs/mapping';
+            $urlPrices = 'https://prices.runescape.wiki/api/v1/osrs/latest';
 
-            // Make the HTTP request using the Http facade
-            $response = Http::get($url);
+            // Fetch the items data
+            $responseItems = Http::get($urlItems);
 
-            // Check if the request was successful (status code 200)
-            if ($response->successful()) {
-                // Parse the JSON response
-                $data = $response->json();
+            // Fetch the prices data
+            $responsePrices = Http::get($urlPrices);
+
+            // Check if both requests were successful
+            if ($responseItems->successful() && $responsePrices->successful()) {
+                // Parse the JSON responses
+                $itemsData = $responseItems->json();
+                $pricesData = $responsePrices->json()['data'];
 
                 // Create an array to hold the mapped data by 'item_id'
                 $mappedData = [];
 
                 // Loop through each item and index it by 'id'
-                foreach ($data as $item) {
+                foreach ($itemsData as $item) {
                     $item_id = $item['id'];  // Extract the 'id' from the item
-                    $mappedData[$item_id] = $item;  // Use 'item_id' as the key for the item data
+                    // Check if the price data exists for this item
+                    if (isset($pricesData[$item_id])) {
+                        $priceData = $pricesData[$item_id];
+                        
+                        // Calculate the average price (if both avgLowPrice and avgHighPrice exist)
+                        $averagePrice = 0;
+                        if (isset($priceData['low'], $priceData['high'])) {
+                            $averagePrice = ($priceData['low'] + $priceData['high']) / 2;
+                        }
+
+                        // Add the price data to the item
+                        $item['average_price'] = $averagePrice;
+                    } else {
+                        // If no price data exists, set average price to 0
+                        $item['average_price'] = 0;
+                    }
+
+                    // Use 'item_id' as the key for the item data
+                    $mappedData[$item_id] = $item;
                 }
 
                 // Return the mapped data array
@@ -396,4 +419,5 @@ class FetchOsrsItems extends Command
             }
         });
     }
+
 }
