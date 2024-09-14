@@ -74,20 +74,21 @@
                                 @endif
                             </td>
                             <td>
-                                <ul>
+                                <ul class="flex">
                                     @foreach ($kill->items as $item)
                                         <li>
                                             @if ($item->osrsItem)
                                                 @if ($item->osrsItem->getFirstMediaUrl('*'))
-                                                    <div class="flex justify-center">
-                                                        <div>
+                                                    <div class="inline-flex justify-center">
+                                                        
                                                             <div class="absolute"><span class="relative"
-                                                                    style="left: 28px;
-  color: yellow;
-  font-weight: 100;
-  font-size: 18px;">{{ $item->quantity }}</span>
+                                                                    style="left: 10px;
+                                                                            color: yellow;
+                                                                            font-weight: 100;
+                                                                            font-size: 16px;
+                                                                            ">{{ $item->quantity }}</span>
                                                             </div><img src="{{ $item->osrsItem->getFirstMediaUrl('*') }}">
-                                                        </div>
+                                                        
                                                     </div>
                                                 @else
                                                     {{ $item->osrsItem->name }} (x{{ $item->quantity }})

@@ -145,7 +145,7 @@ Route::prefix('api')->group(function () {
 });
 Route::get('/dashboard-clan', function () {
     return view('dashboardClan');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard-jjjj');
 Route::prefix('webhook')->group(function () {
     Route::post('{clan_secret}', [MessageController::class, 'store']);
 });
