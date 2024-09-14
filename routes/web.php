@@ -29,8 +29,7 @@ use App\Http\Controllers\NpcController;
 use App\Http\Controllers\EmojiController;
 
 
-
-
+Route::get('/golden-spoon', [FrontendController::class, 'kills'])->name('frontend-kills');
 Route::prefix('webhook')->group(function () {
     Route::post('/npc_kill', [NpcKillController::class, 'store']); // Store a new NPC kill
     Route::get('/npc_kills', [NpcKillController::class, 'index']);  // Retrieve all NPC kills
@@ -125,7 +124,6 @@ Route::get('/config', function () {
     return view('config');
 });
 
-Route::get('/test', [FrontendController::class, 'kills']);
 // Resource Routes
 Route::prefix('api')->group(function () {
     Route::get('get-token', [DiscordUserController::class, 'getToken']);

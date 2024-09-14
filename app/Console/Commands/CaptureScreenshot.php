@@ -12,7 +12,7 @@ class CaptureScreenshot extends Command
 {
     protected $signature = 'capture:screenshot {bingo} {team_id?}';
     protected $description = 'Capture a screenshot and send it to Discord';
-
+    protected $discord;
     const CHANNEL_DATA = [
         'main_channel' => 1267270235317080064,
         'bot_id' => 1232346840578654318,
@@ -33,7 +33,7 @@ class CaptureScreenshot extends Command
         ]
     ];
 
-    protected $discord;
+    
 
     public function __construct(AttitudeDiscord $discord)
     {

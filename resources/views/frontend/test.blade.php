@@ -42,7 +42,7 @@
 
         <div class="leaderboard-body">
             <table class="table w-full ">
-                <thead class=" rs-font ">
+                <thead class=" rs-font  text-white">
                     <tr>
                         <th class="text-left">
                             User
@@ -63,7 +63,7 @@
 
                     @foreach ($kills as $kill)
                         <tr>
-                            <td class="text-left">
+                            <td class="text-left text-white">
                                 {{ $kill->discordUser->username }}
                             </td>
                             <td class="text-left">

@@ -5,6 +5,14 @@ use App\Models\Emoji;
 use App\Models\NpcKill;
 use Illuminate\Http\Request;
 use Carbon\Carbon; 
+
+
+use Illuminate\Console\Command;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+
+
+
 class FrontendController extends Controller
 {
     /**
@@ -23,6 +31,8 @@ class FrontendController extends Controller
 
     public function kills()
     {
+      
+        //$this->sendImageToDiscord($channel, $outputPath);
         $spoon = Emoji::where('name', 'golden_spoon')->first();
     
         // Get the current month
