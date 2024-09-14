@@ -42,7 +42,9 @@ class NpcController extends Controller
 
 
     // Store a new OSRS item
-    public function store(Request $request) {}
+    public function store(Request $request) {
+        
+    }
 
     // Display the form for editing an existing item
     public function edit($npc_id)

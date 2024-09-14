@@ -38,7 +38,7 @@ class NpcKillController extends Controller
             Log::error('Discord user not found', [$token, $request->all()]);
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-       
+        Log::error('store', [ $request->all() ]);
         
 
         // Access the first element in the array (in this case the key is '0')

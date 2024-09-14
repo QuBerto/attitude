@@ -12,8 +12,6 @@ class PlayerStatusController extends Controller
     // Store or update player status for a Discord user
     public function store(Request $request)
     {
-        // Log the incoming request
-        Log::info('Player status request received', [$request->all()]);
         $authorizationHeader = $request->header('Authorization'); // Retrieve token from request header
         $token = str_replace('Bearer: ', '', $authorizationHeader); // Now $token contains only '
 
@@ -25,7 +23,6 @@ class PlayerStatusController extends Controller
             Log::error('Discord user not found', [$token, $request->all()]);
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        Log::error('validating', [$token, $request->all()]);
         // Validate the request data
         $data = $request->validate([
             'data.userName' => 'required|string',
@@ -43,7 +40,6 @@ class PlayerStatusController extends Controller
             'data.currentWeight' => 'required|integer',
             'timestamp' => 'required|integer',
         ]);
-        Log::error('Validated', [$token, $request->all()]);
         // Find or create a PlayerStatus record for this Discord user
         $playerStatus = PlayerStatus::updateOrCreate(
             ['user_name' => $data['data']['userName']], // Use discord_user_id to ensure only one record per user
