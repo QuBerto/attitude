@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Support\Facades\Storage;
+use Spatie\Image\Image;
 use Illuminate\Console\Command;
 use App\Models\OsrsItem;
 use App\Enums\ItemIds;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\File;
 use ZipArchive;
 use Illuminate\Support\Facades\Http;
 
@@ -18,7 +18,7 @@ class FetchOsrsItems extends Command
      *
      * @var string
      */
-    protected $signature = 'fetch:osrs-items';
+    protected $signature = 'fetch:osrs-items {--force_update=false}';
 
     /**
      * The console command description.
@@ -41,7 +41,14 @@ class FetchOsrsItems extends Command
     {
         $this->info('Starting OSRS items fetching process...');
 
-        $this->findApiItem();
+        // Check if force_update flag is set
+        $forceUpdate = $this->option('force_update') === 'true';
+
+        if ($forceUpdate) {
+            $this->info('Force update is enabled.');
+        }
+
+        $this->findApiItem($forceUpdate);
 
         $this->info('OSRS items fetching process completed.');
         return 0;
@@ -50,12 +57,13 @@ class FetchOsrsItems extends Command
     /**
      * The method that fetches items from the API.
      */
-    public function findApiItem()
+    public function findApiItem($force)
     {
         Cache::forget('items_from_csv');
         // Initialize the ItemIds class
         $items = new ItemIds();
         $index = 0;
+
 
         // Define the path to your CSV file
         $path = 'scrape/osrs_items.csv'; // Assuming 'items.csv' is the file name in the 'scrape' directory
@@ -68,107 +76,149 @@ class FetchOsrsItems extends Command
 
         // Loop through the items
         foreach ($items->getAll() as $item => $item_id) {
-
-            // Check if the item already exists in the database
-            $existingItem = OsrsItem::where('item_id', $item_id)->first();
-
+            if($item_id < 21324){
+                continue;
+            }
             // Log info about the current item being processed
             $this->info("Processing item: {$item} (ID: {$item_id})");
 
-            // If the item does not exist, fetch it from the API
-            if (!$existingItem || !isset($existingItem->item_id)) {
-                // Make the API request to fetch item details
-                $this->info("Fetching data for item ID: {$item_id} from the API...");
-                $priceResponse = Http::withHeaders(['User-Agent' => $this->userAgent])
-                    ->get('https://secure.runescape.com/m=itemdb_oldschool/api/catalogue/detail.json', ['item' => $item_id]);
-
-                $prices = $priceResponse->json();
-
-                // If a valid response is returned from the API
-                if ($prices && isset($prices['item'])) {
-                    $priceValue = $this->convertPrice($prices['item']['current']['price'] ?? 0);
-
-                    $this->info("Saving item: {$prices['item']['name']} (ID: {$item_id}) with price: {$priceValue}");
-
-                    // Create or update the item in the database
-                    $existingItem = OsrsItem::updateOrCreate([
-                        'item_id' => $item_id
-                    ], [
-                        'name' => $prices['item']['name'],
-                        'slug' => $item,
-                        'value' => $priceValue ?? 0,
-                        'description' => $prices['item']['description'],
-                        'type' => 'api'
-                    ]);
-                } else {
-                    // Log when no data is available
-                    $this->warn("No data found for item ID: {$item_id}. Using default values.");
-                    $data = $this->getByItemId($item_id);
-
-                    // If no data, create with default values
-                    $existingItem = OsrsItem::updateOrCreate([
-                        'item_id' => $item_id
-                    ], [
-                        'name' => strtolower(str_replace("_", " ", $item)),
-                        'slug' => $item,
-                        'value' => 0,
-                        'description' => '',
-                        'type' => 'manual'
-                    ]);
-
-                    if ($data && $data['image_url']) {
-                        // Define the path to your CSV file
-                        $path = 'scrape/item_images/' . $data['image_url'];
-
-                        // Check if the image exists before proceeding
-                        if (Storage::exists($path)) {
-                            $existingItem
-                                ->addMedia(Storage::path($path)) // Ensure the full file path is passed
-                                ->toMediaCollection();
-                        } else {
-                            // Handle the case where the image does not exist (optional)
-                            $this->warn("Image not found: " . $path);
-                        }
-                    }
-                    if ($data && $data['name'] && $data['name'] != 'Null') {
-                        $existingItem->name = $data['name'];
-                        $existingItem->save();
-                    }
-                }
+            // Check if the item already exists in the database
+            $existingItem = OsrsItem::where('item_id', $item_id)->first();
+            if (!$force && $existingItem && !empty($existingItem->item_id)) {
+                $this->itemExists($existingItem, $item, $item_id,);
             } else {
-                $media = $existingItem->getFirstMedia();
-                if (!$media) {
-                    $data = $this->getByItemId($item_id);
-                    if ($data && $data['image_url']) {
-                        // Define the path to your image file
-                        $path = 'scrape/item_images/' . $data['image_url'];
-
-                        // Check if the image exists before proceeding
-                        if (Storage::exists($path)) {
-                            $existingItem
-                                ->addMedia(Storage::path($path)) // Ensure the full file path is passed
-                                ->toMediaCollection();
-                        } else {
-                            // Handle the case where the image does not exist (optional)
-                            $this->warn("Image not found: " . $path);
-                        }
-                    }
-                    if ($data && $data['name'] && $data['name'] != 'Null') {
-                        $existingItem->name = $data['name'];
-                    }
-                    $existingItem->slug = $item;
-                    $existingItem->save();
-                    if ($data) {
-                        $this->info("No media. url={$data['image_url']}");
-                    }
-                }
-
-                // Log when the item already exists
-                //$this->info("Item ID: {$item_id} already exists. Skipping API fetch.");
+                $this->itemDoesntExists($item, $item_id);
             }
 
             $index++;
         }
+    }
+
+    public function fetchFromOsrs($item_id)
+    {
+        // Make the API request to fetch item details
+        $this->info("Fetching data for item ID: {$item_id} from the API...");
+        $response = Http::withHeaders(['User-Agent' => $this->userAgent])
+            ->get('https://secure.runescape.com/m=itemdb_oldschool/api/catalogue/detail.json', ['item' => $item_id]);
+        return $response->json();
+    }
+
+    public function itemDoesntExists($item, $item_id)
+    {
+        $items = $this->fetchOsrsItems();
+        if (is_array($items) && isset($items[$item_id])) {
+            $name =  $items[$item_id]['name'];;
+            $description =  $items[$item_id]['examine'];
+            $type = 'api';
+            $value = $items[$item_id]['value'];
+        } else {
+            $prices = false; //= $this->fetchFromOsrs($item_id);
+
+            // If a valid response is returned from the API
+            if ($prices && isset($prices['item'])) {
+
+
+                $priceValue = $this->convertPrice($prices['item']['current']['price'] ?? 0);
+
+                $this->info("Saving item: {$prices['item']['name']} (ID: {$item_id}) with price: {$priceValue}");
+                $name = $prices['item']['name'];
+                $description = $prices['item']['description'];
+                $type = 'api';
+                $value = $this->convertPrice($prices['item']['current']['price'] ?? 0);
+            } else {
+                // Log when no data is available
+                $this->warn("No data found for item ID: {$item_id}. Using default values.");
+                $name = strtolower(str_replace("_", " ", $item));
+                $type = 'manual';
+                $description = '';
+                $value = 0;
+            }
+        }
+
+        // If no data, create with default values
+        $existingItem = OsrsItem::updateOrCreate([
+            'item_id' => $item_id
+        ], [
+            'name' => $name,
+            'slug' => $item,
+            'value' => $value,
+            'description' => $description,
+            'type' => $type
+        ]);
+
+        $media = $existingItem->getFirstMedia();
+        if (!$media && is_array($items) && isset($items[$item_id])) {
+            // Define the path to your image file
+            $url = 'https://oldschool.runescape.wiki/images/' . str_replace(" ", "_", $items[$item_id]['icon']);
+
+$this->warn("Image url: " . $url);
+            $existingItem
+                ->addMediaFromUrl($url) // Ensure the full file path is passed
+                ->toMediaCollection();
+        } elseif (!$media && $prices && isset($prices['icon_large'])) {
+            $this->downloadOsrsImage($existingItem, $prices['icon_large']);
+        } else {
+            $this->checkMedia($existingItem, $item, $item_id);
+        }
+    }
+
+    public function itemExists(OsrsItem $existingItem, $item, $item_id)
+    {
+        $this->checkMedia($existingItem, $item, $item_id);
+    }
+
+    public function checkMedia(OsrsItem $existingItem, $item, $item_id)
+    {
+        $media = $existingItem->getFirstMedia();
+        if (!$media) {
+            $data = $this->getByItemId($item_id);
+            if ($data && $data['image_url']) {
+                // Define the path to your image file
+                $path = 'scrape/item_images/' . $data['image_url'];
+
+                // Check if the image exists before proceeding
+                if (Storage::exists($path)) {
+                    $existingItem
+                        ->addMedia(Storage::path($path)) // Ensure the full file path is passed
+                        ->toMediaCollection();
+                } else {
+                    // Handle the case where the image does not exist (optional)
+                    $this->warn("Image not found: " . $path);
+                }
+            }
+        }
+    }
+
+    public function downloadOsrsImage($existingItem, $gifUrl)
+    {
+
+        // Download the GIF image and store it temporarily
+        $gifContent = file_get_contents($gifUrl);
+        $gifTempPath = 'temp/item.gif'; // You can adjust the path
+        Storage::put($gifTempPath, $gifContent);
+        $this->info('Saved GIF image');
+
+        // Path for the converted PNG image
+        $pngFileName = "item_{$existingItem->item_id}.png";
+        $pngPath = Storage::path('temp/' . $pngFileName);
+
+
+        // Use Spatie Image to convert the GIF to PNG
+        Image::load(Storage::path($gifTempPath))
+            ->format('png')
+            ->save($pngPath);
+        $this->info('Saved PNG image');
+        // Attach the converted PNG to the media collection
+        $this->info('Assiging image to model');
+        $existingItem->addMedia($pngPath)
+            ->toMediaCollection('images'); // Change 'images' to your media collection name
+
+        // Clean up the temporary GIF and PNG files if needed
+        $this->info('Deleting temp GIF image');
+        Storage::delete($gifTempPath);
+        $this->info('Deleting temp PNG image');
+        Storage::delete('temp/' . $pngFileName);
+        $this->info('GIF image has been converted to PNG and added to the media collection.');
     }
 
     /**
@@ -253,5 +303,42 @@ class FetchOsrsItems extends Command
         }
 
         return $items;
+    }
+
+    public function fetchOsrsItems()
+    {
+        // Define the cache key and duration (1 hour = 3600 seconds)
+        $cacheKey = 'osrs_items_data';
+        $cacheDuration = 3600; // 1 hour in seconds
+
+        // Check if the data is already cached
+        return Cache::remember($cacheKey, $cacheDuration, function () {
+            // Define the URL to fetch data from
+            $url = 'https://prices.runescape.wiki/api/v1/osrs/mapping';
+
+            // Make the HTTP request using the Http facade
+            $response = Http::get($url);
+
+            // Check if the request was successful (status code 200)
+            if ($response->successful()) {
+                // Parse the JSON response
+                $data = $response->json();
+
+                // Create an array to hold the mapped data by 'item_id'
+                $mappedData = [];
+
+                // Loop through each item and index it by 'id'
+                foreach ($data as $item) {
+                    $item_id = $item['id'];  // Extract the 'id' from the item
+                    $mappedData[$item_id] = $item;  // Use 'item_id' as the key for the item data
+                }
+
+                // Return the mapped data array
+                return $mappedData;
+            } else {
+                // Handle any errors or non-success responses
+                return false;
+            }
+        });
     }
 }
