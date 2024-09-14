@@ -39,68 +39,74 @@
                 <h1 class="rs-font rs-yellow">Attitude Monthly Golden Spoon Leaderboard</h1>
             </div>
         </div>
-        
+
         <div class="leaderboard-body">
             <table class="table w-full rs-font">
                 <thead class=" text-white">
-                <tr>
-                    <th>
-                        User
-                    </th>
-                    <th>
-                        NPC
-                    </th>
-                    <th>
-                        Loot
-                    </th>
-                    <th>
-                        Value
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="text-center rs-font">
-                
+                    <tr>
+                        <th>
+                            User
+                        </th>
+                        <th>
+                            NPC
+                        </th>
+                        <th>
+                            Loot
+                        </th>
+                        <th>
+                            Value
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="text-center rs-font">
 
-            @foreach($kills as $kill)
-            <tr>
-                <td>
-                    {{$kill->discordUser->username}}
-                </td>
-                <td>
-                    @if($kill->npc)
-                        {{strtolower(str_replace("_", " ", $kill->npc->slug))}}
-                    @else
-                        {{$kill->npc_id}}
-                    @endif                
-                </td>
-                <td>
-                    <ul>
-                    @foreach($kill->items as $item)
-                        <li>
-                            @if($item->osrsItem)
-                                @if($item->osrsItem->getFirstMediaUrl("*"))
-                                <div class="flex justify-center">
-                                <div><img src="{{$item->osrsItem->getFirstMediaUrl('*')}}"></div><div>{{$item->osrsItem->name}} (x{{$item->quantity}})</div>
-                                </div>
+
+                    @foreach ($kills as $kill)
+                        <tr>
+                            <td>
+                                {{ $kill->discordUser->username }}
+                            </td>
+                            <td>
+                                @if ($kill->npc)
+                                    {{ strtolower(str_replace('_', ' ', $kill->npc->slug)) }}
                                 @else
-                                {{$item->osrsItem->name}} (x{{$item->quantity}})
+                                    {{ $kill->npc_id }}
                                 @endif
-                            
-                            @else
-                            {{$item->item_id}} (x{{$item->quantity}})
-                            @endif
-                        </li>
+                            </td>
+                            <td>
+                                <ul>
+                                    @foreach ($kill->items as $item)
+                                        <li>
+                                            @if ($item->osrsItem)
+                                                @if ($item->osrsItem->getFirstMediaUrl('*'))
+                                                    <div class="flex justify-center">
+                                                        <div>
+                                                            <div class="absolute"><span class="relative"
+                                                                    style="left: 28px;
+  color: yellow;
+  font-weight: 100;
+  font-size: 18px;">{{ $item->quantity }}</span>
+                                                            </div><img src="{{ $item->osrsItem->getFirstMediaUrl('*') }}">
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    {{ $item->osrsItem->name }} (x{{ $item->quantity }})
+                                                @endif
+                                            @else
+                                                {{ $item->item_id }} (x{{ $item->quantity }})
+                                            @endif
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </td>
+                            <td>
+                                {{ $kill->ge_price }}
+                            </td>
+                        </tr>
                     @endforeach
-                    </ul>
-                </td>
-                <td>
-                    {{$kill->ge_price}}
-                </td>
-            </tr>
-            @endforeach
-            </tbody>
+                </tbody>
             </table>
-        </div> 
+        </div>
 
     </div>
 @stop

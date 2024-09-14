@@ -3,6 +3,11 @@ import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
+    server: {
+        cors: true,
+        host: 'localhost',
+        port: 5173,
+    },
     plugins: [
         laravel({
             input: [
@@ -12,17 +17,17 @@ export default defineConfig({
             refresh: true,
         }),
         vue({
-            template: {
-                transformAssetUrls: {
-                    base: null,
-                    includeAbsolute: false,
-                },
-            },
+            // template: {
+            //     transformAssetUrls: {
+            //         base: null,
+            //         includeAbsolute: false,
+            //     },
+            // },
         }),
     ],
     resolve: {
-        alias: {
-            vue: 'vue/dist/vue.esm-bundler.js',
-        },
-    },
+        // alias: {
+        //     vue: 'vue/dist/vue.esm-bundler.js',
+        // },
+    }, 
 });

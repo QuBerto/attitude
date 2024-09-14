@@ -67,7 +67,7 @@ class FetchOsrsNpcs extends Command
                     if (Storage::exists($path)) {
                         $npcdb
                             ->addMedia(Storage::path($path)) // Ensure the full file path is passed
-                            ->toMediaCollection();
+                            ->toMediaCollection('npcs');
                     } else {
                         // Handle the case where the image does not exist (optional)
                         $this->warn("Image not found: " . $path);
@@ -100,7 +100,7 @@ class FetchOsrsNpcs extends Command
                         if (Storage::exists($path)) {
                             $npcModel
                                 ->addMedia(Storage::path($path)) // Ensure the full file path is passed
-                                ->toMediaCollection();
+                                ->toMediaCollection('npcs');
                         } else {
                             // Handle the case where the image does not exist (optional)
                             $this->warn("Image not found: " . $path);
