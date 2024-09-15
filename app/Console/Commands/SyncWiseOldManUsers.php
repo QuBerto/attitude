@@ -61,7 +61,7 @@ class SyncWiseOldManUsers extends Command
                         ['wom_id' => $player['id']],
                         [
                             'username' => $player['username'],
-                            'role' => $member['role'] ?? null,
+                            'role' => $member['role'] ?? 'member',
                             'display_name' => $player['displayName'] ?? null,
                             'type' => $player['type'] ?? null,
                             'build' => $player['build'] ?? null,

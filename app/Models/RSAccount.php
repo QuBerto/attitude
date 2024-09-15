@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class RSAccount extends Model
 {
     use HasFactory;
-
+    protected $table = "r_s_accounts";
     protected $fillable = [
         'wom_id',
         'username',
@@ -50,7 +50,8 @@ class RSAccount extends Model
     }
  
     public function getMeta($key, $default = null)
-    {
+    {   
+  
         $meta = $this->metas()->where('key', $key)->first();
         return $meta ? $meta->value : $default;
     }

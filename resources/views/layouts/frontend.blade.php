@@ -46,7 +46,7 @@
                 <div class="hidden lg:flex lg:gap-x-12">
                     <a href="{{ url('/calendar') }}" class="text-sm font-semibold leading-6 text-gray-100">Events</a>
                     <a href="{{ url('/members') }}" class="text-sm font-semibold leading-6 text-gray-100">Members</a>
-                    <a href="{{ url('/npckills') }}" class="text-sm font-semibold leading-6 text-gray-100">Kills</a>
+                    <a href="{{ url('/golden-spoon') }}" class="text-sm font-semibold leading-6 text-gray-100">Golden Spoon</a>
                     <a href="https://discord.com/invite/nXHSxhfdZr"
                         class="text-sm font-semibold leading-6 text-gray-100">Discord</a>
                 </div>

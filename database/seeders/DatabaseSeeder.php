@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
    
         // Call the UserSeeder class
         $this->call(UserSeeder::class);
-        $this->call(BingoCardSeeder::class);
+        //$this->call(BingoCardSeeder::class);
          // Check if any DiscordUser records exist
          $existingUsers = DiscordUser::count();
 

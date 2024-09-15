@@ -40,4 +40,9 @@ return [
         'token' => env('DISCORD_BOT_TOKEN'),
     ],
 
+    'wiseoldman' => [
+        'api_key' => env('WISE_OLD_MAN_API_KEY'),
+        'user_agent' => env('WISE_OLD_MAN_USER_AGENT'),
+    ],
+
 ];

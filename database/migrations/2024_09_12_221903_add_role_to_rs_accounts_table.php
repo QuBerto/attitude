@@ -25,8 +25,9 @@ class AddRoleToRsAccountsTable extends Migration
      */
     public function down()
     {
-        Schema::table('rs_accounts', function (Blueprint $table) {
+        Schema::table('r_s_accounts', function (Blueprint $table) {
             $table->dropColumn('role'); // Remove the 'role' column if rolled back
         });
     }
+
 }
