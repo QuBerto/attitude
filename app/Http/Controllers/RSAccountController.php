@@ -20,24 +20,34 @@ class RSAccountController extends Controller
 
     public function frontend(Request $request)
     {
-        // Define emoji ranks
-        $ranks = [
-            'owner' => Emoji::where('name', 'Owner')->first(),
-            'deputy_owner' => Emoji::where('name', 'Deputy_owner')->first(),
-            'completionist' => Emoji::where('name', 'Administrator')->first(),
-            'moderator' => Emoji::where('name', 'Moderator')->first(),
-            'dragon' => Emoji::where('name', 'dragon_rank')->first(),
-            'rune' => Emoji::where('name', 'Rune_Bar')->first(),
-            'adamant' => Emoji::where('name', 'Adamant')->first(),
-            'mithril' => Emoji::where('name', 'Mithril_bar')->first(),
-            'gold' => Emoji::where('name', 'Gold_bar')->first(),
-            'steel' => Emoji::where('name', 'Steel_bar')->first(),
-            'iron' => Emoji::where('name', 'Iron_bar')->first(),
-            'bronze' => Emoji::where('name', 'Bronze_bar')->first(),
-            'member' => Emoji::where('name', 'Friend_clan_rank')->first(),
-            'ironman' => Emoji::where('name', 'ironman')->first(),
-            'hardcore' => Emoji::where('name', 'Hardcore_ironman')->first(),
+      // Retrieve all emojis in a single query
+        $emojiNames = [
+            'Owner', 'Deputy_owner', 'Administrator', 'Moderator', 'dragon_rank', 
+            'Rune_Bar', 'Adamant', 'Mithril_bar', 'Gold_bar', 'Steel_bar', 
+            'Iron_bar', 'Bronze_bar', 'Friend_clan_rank', 'ironman', 'Hardcore_ironman'
         ];
+
+        $emojis = Emoji::whereIn('name', $emojiNames)->get()->keyBy('name');
+
+        // Map the emojis to the rank keys
+        $ranks = [
+            'owner' => $emojis->get('Owner'),
+            'deputy_owner' => $emojis->get('Deputy_owner'),
+            'completionist' => $emojis->get('Administrator'),
+            'moderator' => $emojis->get('Moderator'),
+            'dragon' => $emojis->get('dragon_rank'),
+            'rune' => $emojis->get('Rune_Bar'),
+            'adamant' => $emojis->get('Adamant'),
+            'mithril' => $emojis->get('Mithril_bar'),
+            'gold' => $emojis->get('Gold_bar'),
+            'steel' => $emojis->get('Steel_bar'),
+            'iron' => $emojis->get('Iron_bar'),
+            'bronze' => $emojis->get('Bronze_bar'),
+            'member' => $emojis->get('Friend_clan_rank'),
+            'ironman' => $emojis->get('ironman'),
+            'hardcore' => $emojis->get('Hardcore_ironman'),
+        ];
+
     
         // Get the roles in the correct order based on the ranks array
         $rankOrder = array_keys($ranks);
