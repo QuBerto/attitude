@@ -1,24 +1,16 @@
 <?php
 
 namespace App\Console\Commands;
-use Illuminate\Support\Facades\Hash;
+
 use Illuminate\Console\Command;
 use App\Models\RSAccount;
-use App\Models\BingoCard;
-use App\Models\PlayerMeta;
-use App\Services\WiseOldManService; // Ensure this is the correct namespace for your service
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Cache;
-
-
-use Illuminate\Support\Facades\DB;
 
 class UpdatePlayerMeta extends Command
 {
-    //protected $signature = 'sync:playermeta {id} {bingo_card_id?}';
-    protected $signature = 'sync:playermeta';
-    protected $description = 'Update player meta data for a given RSAccount id';
+    // Add an optional argument for the maximum number of accounts to update
+    protected $signature = 'sync:playermeta {maxAccounts?}';
+    protected $description = 'Update player meta data for RSAccount records';
 
     public function __construct()
     {
@@ -27,21 +19,32 @@ class UpdatePlayerMeta extends Command
 
     public function handle()
     {
+        // Get the maxAccounts argument or default to 10 if not provided
+        $maxAccounts = $this->argument('maxAccounts') ?? 10;
+
         // Get the timestamp for six hours ago
         $sixHoursAgo = Carbon::now()->subHours(6);
 
-        // Query 10 accounts that haven't been updated in the last 6 hours
+        // Query all accounts that haven't been updated in the last 6 hours
+        $accountsNeedingUpdate = RSAccount::where('wom_updated_at', '<', $sixHoursAgo)
+                                          ->orWhereNull('wom_updated_at')
+                                          ->count();
+
+        // Log how many accounts need to be updated
+        $this->info("There are {$accountsNeedingUpdate} accounts that need to be updated.");
+
+        // Query and limit the number of accounts to be updated based on the maxAccounts argument
         $accounts = RSAccount::where('wom_updated_at', '<', $sixHoursAgo)
                             ->orWhereNull('wom_updated_at')  // Also include accounts where wom_updated_at is null
-                            ->limit(10)
+                            ->limit($maxAccounts)
                             ->get();
 
-        foreach($accounts as $account){
-
+        // Loop through the accounts and update their meta data
+        foreach ($accounts as $account) {
             // Log message before sending the update request
             $this->info('Updating player meta data for ' . $account->username);
             
-            // Send the update request
+            // Send the update request (implement sendUpdateRequest in your service or class)
             $this->sendUpdateRequest($account);
 
             // Update the wom_updated_at field to the current timestamp after the update
@@ -50,7 +53,12 @@ class UpdatePlayerMeta extends Command
             // Log success message
             $this->info('Player meta data updated successfully for ' . $account->username);
         }
-}
+
+        // Log when no accounts need to be updated
+        if ($accounts->isEmpty()) {
+            $this->info('No accounts were updated.');
+        }
+    }
     protected function updatePlayerMeta(RSAccount $acc, $bosslist = [])
     {
        
