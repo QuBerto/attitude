@@ -150,7 +150,7 @@ class UpdatePlayerMeta extends Command
         }
         
 
-        $dataToInsert = []; // Accumulate data here for batch insert/update
+        $dataToInsert = []; // Accumulate data here for processing
         foreach ($data['data']['latestSnapshot']['data'] as $category => $details) {
             
             foreach ($details as $metric => $detail) {
@@ -162,8 +162,8 @@ class UpdatePlayerMeta extends Command
                     }
                    
                     $keyname = "{$metric}_{$key}";
-        
-                    // Prepare data for batch upsert
+            
+                    // Prepare data for update or create
                     $dataToInsert[] = [
                         'r_s_accounts_id' => $acc->id,
                         'key' => $keyname,
@@ -172,9 +172,18 @@ class UpdatePlayerMeta extends Command
                 }
             }
         }
-        // Perform batch insert/update (upsert) if there is data to insert
-        if (!empty($dataToInsert)) {
-            PlayerMeta::upsert($dataToInsert, ['r_s_accounts_id', 'key'], ['value']);
+        
+        // Perform updateOrCreate operation if there is data to insert
+        foreach ($dataToInsert as $data) {
+            PlayerMeta::updateOrCreate(
+                [
+                    'r_s_accounts_id' => $data['r_s_accounts_id'], 
+                    'key' => $data['key']
+                ],
+                [
+                    'value' => $data['value']
+                ]
+            );
         }
         
     }
