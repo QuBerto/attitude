@@ -35,6 +35,8 @@ class RSAccountController extends Controller
             'iron' => Emoji::where('name', 'Iron_bar')->first(),
             'bronze' => Emoji::where('name', 'Bronze_bar')->first(),
             'member' => Emoji::where('name', 'Friend_clan_rank')->first(),
+            'ironman' => Emoji::where('name', 'ironman')->first(),
+            'hardcore' => Emoji::where('name', 'Hardcore_ironman')->first(),
         ];
     
         // Get the roles in the correct order based on the ranks array

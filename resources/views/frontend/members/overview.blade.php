@@ -47,16 +47,22 @@
                         @foreach ($accounts as $account)
                             <tr>
                                 <td class="whitespace-nowrap border-b border-gray-200 dark:border-gray-700 px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                    @isset($ranks[$account->role])<img
+                                    @isset($ranks[$account->role])<img  class="h-4"
                                                 src="{{ $ranks[$account->role]->getFirstMediaUrl('images') }}" />@endisset
                                 </td>
                                 <td
                                     class="whitespace-nowrap border-b border-gray-200 dark:border-gray-700 py-4 px-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                                    
-                                        <div class="flex items-center gap-4">
+                                        <div class="flex items-center gap-2">
                                             @if($account->type != 'regular')
                                             <div>
+                                                @isset($ranks[$account->type])
+                                                <img class="h-4"
+                                                src="{{$ranks[$account->type]->getFirstMediaUrl('images') }}" />
+                                                @else
                                                 {{$account->type}}
+                                                @endisset
+
                                                 
                                                 
                                             </div>
