@@ -20,15 +20,15 @@ class RSAccountController extends Controller
 
     public function frontend(Request $request)
     {
-      // Retrieve all emojis in a single query
+        // Retrieve all emojis in a single query
         $emojiNames = [
             'Owner', 'Deputy_owner', 'Administrator', 'Moderator', 'dragon_rank', 
             'Rune_Bar', 'Adamant', 'Mithril_bar', 'Gold_bar', 'Steel_bar', 
             'Iron_bar', 'Bronze_bar', 'Friend_clan_rank', 'ironman', 'Hardcore_ironman'
         ];
-
+    
         $emojis = Emoji::whereIn('name', $emojiNames)->get()->keyBy('name');
-
+    
         // Map the emojis to the rank keys
         $ranks = [
             'owner' => $emojis->get('Owner'),
@@ -47,18 +47,16 @@ class RSAccountController extends Controller
             'ironman' => $emojis->get('ironman'),
             'hardcore' => $emojis->get('Hardcore_ironman'),
         ];
-
     
         // Get the roles in the correct order based on the ranks array
         $rankOrder = array_keys($ranks);
     
         $query = RSAccount::query()
-    ->leftJoin('player_meta', function ($join) {
-        $join->on('r_s_accounts.id', '=', 'player_meta.r_s_accounts_id')
-             ->where('player_meta.key', '=', DB::raw("'overall_level'")); // Pass 'overall_level' directly
-    })
-    ->select('r_s_accounts.*', 'player_meta.value as overall_level');
-
+            ->leftJoin('player_meta', function ($join) {
+                $join->on('r_s_accounts.id', '=', 'player_meta.r_s_accounts_id')
+                     ->where('player_meta.key', '=', DB::raw("'overall_level'"));
+            })
+            ->select('r_s_accounts.*', 'player_meta.value as overall_level');
     
         // Handle search
         if ($request->filled('search')) {
@@ -71,23 +69,26 @@ class RSAccountController extends Controller
     
         // Sort by meta field (overall_level)
         if ($sortField === 'overall_level') {
-            $query->orderBy('player_meta.value', $sortDirection);
+            $query->whereNotNull('player_meta.value') // Exclude accounts where overall_level is null
+                  ->orderBy('player_meta.value', $sortDirection);
         } elseif ($sortField === 'role') {
             // Sort accounts based on the custom rank order for 'role'
             $query->orderByRaw('FIELD(role, "' . implode('", "', $rankOrder) . '") ' . $sortDirection);
-        } elseif($sortDirection){
+        } else {
+            if ($sortDirection === null) {
                 $sortDirection = 'asc';
-            
+            }
             // Default sorting for other fields
             $query->orderBy($sortField, $sortDirection);
         }
     
         // Handle pagination
         $accounts = $query->paginate(25)->appends($request->all());
-      
+    
         // Pass ranks and accounts to the view
         return view('frontend.members.members', compact('accounts', 'ranks'));
     }
+    
     
     
     

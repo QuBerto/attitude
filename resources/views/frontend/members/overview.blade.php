@@ -54,7 +54,7 @@
                                     class="whitespace-nowrap border-b border-gray-200 dark:border-gray-700 py-4 px-3 text-sm font-medium text-gray-900 dark:text-gray-100">
                                    
                                         <div class="flex items-center gap-2">
-                                            @if($account->type != 'regular')
+                                            @if($account->type != 'regular' && $account->type != 'unknown' )
                                             <div>
                                                 @isset($ranks[$account->type])
                                                 <img class="h-4"
