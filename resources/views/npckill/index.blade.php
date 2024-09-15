@@ -42,7 +42,7 @@
                             <ul class="list-disc list-inside">
                                 @foreach($drop->items as $item)
                                     @isset($item->osrsItem->name)
-                                    <li>{{ $item->osrsItem->name}} (x{{ $item['quantity'] }})</li>
+                                    <li>{{ $item->osrsItem->name}} {{ $item->osrsItem->value}}  (x{{ $item['quantity'] }})</li>
                                     @else
                                     
                                     <li>{{$item->item_id}} (x{{ $item['quantity'] }})</li>
@@ -56,6 +56,11 @@
                 @endforeach
             </tbody>
         </table>
+        <!-- Pagination Links -->
+<!-- Pagination links -->
+<div class="pagination">
+    {{ $drops->links() }}
+</div>
     </div>
     @endif
     </div>

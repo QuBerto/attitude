@@ -16,8 +16,9 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        $User = User::all();
+        $User = User::first();
         if($User){
+            echo 'User already exist';
             return;
         }
         $name = env('USER_NAME', 'defaultuser');

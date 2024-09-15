@@ -40,7 +40,7 @@ class DiscordUserController extends Controller
         $roles = DiscordRole::all();
 
         // Return the view with users, rsAccounts, and roles
-        return view('discord-users.index', compact('users', 'rsAccounts', 'roles', 'search', 'roleFilter'));
+        return view('discord.index', compact('users', 'rsAccounts', 'roles', 'search', 'roleFilter'));
     }
 
 

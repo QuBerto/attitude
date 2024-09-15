@@ -20,7 +20,7 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->prefix('backend')->group(function () {
     Route::get('/findApiItem/{item_id}', [OsrsItemController::class, 'findApiItem'])->name('find-item');
     //Discord Users
-    Route::get('/discord-users', [DiscordUserController::class, 'index'])->name('discord-users.index');
+    Route::get('/discord', [DiscordUserController::class, 'index'])->name('discord.index');
     Route::get('/discord-users/show/{discordUser}', [DiscordUserController::class, 'show'])->name('discord-users.show');
     Route::post('/discord-users/{discordUser}/assign-player', [DiscordUserController::class, 'assignPlayer'])->name('discord-users.assign-player');
     Route::delete('/discord-users/{discordUser}/unassign-player/{account}', [DiscordUserController::class, 'unassignPlayer'])->name('discord-users.unassign-player');

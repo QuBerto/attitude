@@ -16,17 +16,21 @@ class NpcKillController extends Controller
 {
     protected $userAgent = 'AttitudeBot/1.0 (https://attitude.com;)';
     // Store new NPC kill data
-
-      /**
+    /**
      * Display a listing of the drops.
      *
      * @return \Illuminate\View\View
      */
     public function index()
     {
-        $drops = NpcKill::with('items')->get(); // Eager load the items
+        // Fetch the drops, sort by 'created_at' from newest to oldest, and paginate the results
+        $drops = NpcKill::with('items')
+            ->orderBy('created_at', 'desc') // Sort by newest to oldest
+            ->paginate(500); // Paginate with 15 items per page (you can adjust the number)
+
         return view('npckill.index', compact('drops'));
     }
+
     public function store(Request $request)
     {
         $authorizationHeader = $request->header('Authorization');
