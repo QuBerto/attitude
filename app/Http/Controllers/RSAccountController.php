@@ -56,7 +56,7 @@ class RSAccountController extends Controller
                 $join->on('r_s_accounts.id', '=', 'player_meta.r_s_accounts_id')
                      ->where('player_meta.key', '=', DB::raw("'overall_level'"));
             })
-            ->select('r_s_accounts.*', 'player_meta.value as overall_level');
+            ->select('r_s_accounts.*', DB::raw('CAST(player_meta.value AS UNSIGNED) as overall_level'));
     
         // Handle search
         if ($request->filled('search')) {
@@ -70,7 +70,7 @@ class RSAccountController extends Controller
         // Sort by meta field (overall_level)
         if ($sortField === 'overall_level') {
             $query->whereNotNull('player_meta.value') // Exclude accounts where overall_level is null
-                  ->orderBy('player_meta.value', $sortDirection);
+                  ->orderBy(DB::raw('CAST(player_meta.value AS UNSIGNED)'), $sortDirection); // Numeric sorting
         } elseif ($sortField === 'role') {
             // Sort accounts based on the custom rank order for 'role'
             $query->orderByRaw('FIELD(role, "' . implode('", "', $rankOrder) . '") ' . $sortDirection);
@@ -88,6 +88,7 @@ class RSAccountController extends Controller
         // Pass ranks and accounts to the view
         return view('frontend.members.members', compact('accounts', 'ranks'));
     }
+    
     
     
     

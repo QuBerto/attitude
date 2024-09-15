@@ -183,6 +183,9 @@
                     </tbody>
                 </table>
             </div>
+            <div class="rs-font text-white text-center mt-3">
+                Also want your drops on the leaderboard?<br><br> Use <span class="rs-yellow">/token</span> to get your token.
+            </div>
         </div>
        
     </div>
