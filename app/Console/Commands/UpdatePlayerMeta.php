@@ -1,10 +1,15 @@
 <?php
 
 namespace App\Console\Commands;
-
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Console\Command;
 use App\Models\RSAccount;
+use App\Models\BingoCard;
+use App\Models\PlayerMeta;
+use App\Services\WiseOldManService; // Ensure this is the correct namespace for your service
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 
 class UpdatePlayerMeta extends Command
 {
