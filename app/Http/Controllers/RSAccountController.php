@@ -63,7 +63,9 @@ class RSAccountController extends Controller
         } elseif ($sortField === 'role') {
             // Sort accounts based on the custom rank order for 'role'
             $query->orderByRaw('FIELD(role, "' . implode('", "', $rankOrder) . '") ' . $sortDirection);
-        } else {
+        } elseif($sortDirection){
+                $sortDirection = 'asc';
+            
             // Default sorting for other fields
             $query->orderBy($sortField, $sortDirection);
         }
