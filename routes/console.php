@@ -21,4 +21,4 @@ Schedule::command('sync:discord-rsaccounts')->dailyAt('00:10');
  Schedule::command('generate:tokens')->dailyAt('00:11');
 
 Schedule::command('sync:competitions 5260')->dailyAt('00:12');
-Schedule::command('sync:playermeta')->everyFiveMinutes();
+Schedule::command('sync:playermeta')->everyMinute();
