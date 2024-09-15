@@ -52,6 +52,7 @@ class RSAccountController extends Controller
         $rankOrder = array_keys($ranks);
     
         $query = RSAccount::query()
+
             ->leftJoin('player_meta', function ($join) {
                 $join->on('r_s_accounts.id', '=', 'player_meta.r_s_accounts_id')
                      ->where('player_meta.key', '=', DB::raw("'overall_level'"));
@@ -62,7 +63,7 @@ class RSAccountController extends Controller
         if ($request->filled('search')) {
             $query->where('username', 'like', '%' . $request->search . '%');
         }
-    
+        $query->where('status', 'active');
         // Handle sorting
         $sortField = $request->get('sort_field', 'role');
         $sortDirection = $request->get('sort_direction', 'asc');
@@ -78,6 +79,10 @@ class RSAccountController extends Controller
             if ($sortDirection === null) {
                 $sortDirection = 'asc';
             }
+            if (empty( $sortField )){
+                $sortField = 'username';
+            }
+            
             // Default sorting for other fields
             $query->orderBy($sortField, $sortDirection);
         }

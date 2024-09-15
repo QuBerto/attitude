@@ -32,6 +32,7 @@ class UpdatePlayerMeta extends Command
 
         // Query all accounts that haven't been updated in the last 6 hours
         $accountsNeedingUpdate = RSAccount::where('wom_updated_at', '<', $sixHoursAgo)
+        ->where('status', 'active')
                                           ->orWhereNull('wom_updated_at')
                                           ->count();
 
@@ -40,6 +41,7 @@ class UpdatePlayerMeta extends Command
 
         // Query and limit the number of accounts to be updated based on the maxAccounts argument
         $accounts = RSAccount::where('wom_updated_at', '<', $sixHoursAgo)
+                            ->where('status', 'active')
                             ->orWhereNull('wom_updated_at')  // Also include accounts where wom_updated_at is null
                             ->limit($maxAccounts)
                             ->get();
