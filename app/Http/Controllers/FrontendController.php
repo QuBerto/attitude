@@ -44,15 +44,15 @@ class FrontendController extends Controller
                     ->limit(10)
                     ->get();
 
-        // Query to sum up the total loot per user for the current month
         $totalLootPerUser = NpcKill::select('discord_user_id', DB::raw('SUM(ge_price) as total_loot'))
                     ->whereYear('created_at', $currentYear)
                     ->whereMonth('created_at', $currentMonth)
                     ->groupBy('discord_user_id')
                     ->orderBy('total_loot', 'desc')
+                    ->distinct('discord_user_id')
                     ->limit(10)
                     ->get();
-
+                
         // Return the view with both the kills and the total loot per user
         return view('frontend.test', compact('kills', 'spoon', 'totalLootPerUser'));
     }
