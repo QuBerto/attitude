@@ -28,10 +28,17 @@ class WebhookController extends Controller
         }
         $data =  json_decode($request->input('payload_json'),1);
         $type = $data['type'];
+        Log::info('DATA:', [$data], true);
         if (isset($data['extra'])){
             $extra = $data['extra'];
+           
+            
         }
-        
+        if (isset($data['embeds'])){
+            $embeds = ($data['embeds']);
+            $data['embeds'][0]['footer'] = 'Powered by Erva Ring';
+            Log::info('DATA:', [$data['embeds'][0]['footer']], true);
+        }
         $playerName = $data['playerName'];
         $player = RSAccount::where('username', $playerName)->first();
         if (!$player){
@@ -44,6 +51,7 @@ class WebhookController extends Controller
         if ($type){
             Log::info('Request type:', [$type], true);
         }
+
         
         switch($type){
             case 'DEATH':
