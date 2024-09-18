@@ -68,7 +68,7 @@ class PlayerStatusController extends Controller
     public function getRecentUpdates(Request $request)
     {
         // Calculate the time for 3 minutes ago
-        $threeMinutesAgo = Carbon::now()->subMinutes(2);
+        $threeMinutesAgo = Carbon::now()->subHours(6);
     
         // Query the records, sort by discord_user_id and combat_level
         $recentUpdates = PlayerStatus::where('updated_at', '>=', $threeMinutesAgo)
@@ -109,5 +109,46 @@ class PlayerStatusController extends Controller
     
         // Return the list of usernames in default format (JSON array)
         return response()->json($recentUpdates, 200);
+    }
+
+    public function login($extra, $player, $user){
+        Log::info('LOGIN:', [$player], true);
+        $playerStatus = PlayerStatus::updateOrCreate(
+            ['user_name' => $player->username], 
+            [
+                'user_name' => $player->username,
+                'account_type' => 'normal',
+                'combat_level' => 126,
+                'world' => $extra['world'],
+                'world_x' => 0,
+                'world_y' => 0,
+                'world_plane' => 1,
+                'max_health' => 99,
+                'current_health' => 99,
+                'max_prayer' => 99,
+                'current_prayer' => 99,
+                'current_run' => 100,
+                'current_weight' => 0,
+                'timestamp' => time(),
+                'discord_user_id' => $user->id,
+            ]
+        );
+    }
+
+    public function logout($player, $user)
+    {
+        Log::info('LOGIN:', [$player], true);
+        // Attempt to find the player record by username and discord_user_id
+        $playerStatus = PlayerStatus::where('user_name', $player->username)
+            ->where('discord_user_id', $user->id)
+            ->first();
+
+        // If the player record exists, delete it
+        if ($playerStatus) {
+            $playerStatus->delete();
+            Log::info("Player {$player} logged out and record deleted.");
+        } else {
+            Log::info("Player {$player} not found for logout.");
+        }
     }
 }

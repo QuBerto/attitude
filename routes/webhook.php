@@ -10,8 +10,26 @@ use App\Http\Controllers\DiscordUserController;
 use App\Http\Controllers\PlayerStatusController;
 use App\Http\Controllers\NpcKillController;
 use App\Http\Controllers\LootController;
+use App\Http\Controllers\WebhookController;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
+
 
 Route::prefix('webhook')->group(function () {
+    Route::post('/', function (Request $request) {
+        // Log the request details
+        Log::info('Request logged:', [
+            'url' => $request->fullUrl(),
+            'method' => $request->method(),
+            'ip' => $request->ip(),
+            'user_agent' => $request->header('User-Agent'),
+            'data' => $request->all(),
+        ]);
+    
+        // Pass the request to the WebhookController
+        $npc = new WebhookController();
+        return $npc->webhook($request); // Pass the request to the webhook method
+    });
     Route::post('/npc_kill', [NpcKillController::class, 'store']);
     Route::get('/npc_kills', [NpcKillController::class, 'index']); 
     Route::get('/npc_kills/{id}', [NpcKillController::class, 'show']);

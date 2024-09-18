@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\NpcKill;
 use App\Models\NpcItem;
+use App\Models\Npc;
 use App\Models\OsrsItem;
 use App\Models\DiscordUser;
 use Illuminate\Support\Facades\Log;
@@ -72,5 +73,50 @@ class NpcKillController extends Controller
         }
 
         return response()->json($npcKill);
+    }
+
+    public function storeNew($extra, $player, $user){
+        $npc = Npc::where('name', $extra['source'])->first();
+        if (!$npc){
+            Log::info('NPC not found:', [$npc], true);
+            return false;
+        }
+        // Create a new NPC kill
+        $npcKill = NpcKill::create([
+            'npc_id' => $npc->npc_id,
+            'ge_price' => 0, // Initialize with 0, will update after item calculations
+            'timestamp' => time(),
+            'discord_user_id' => $user->id,
+        ]);
+
+        // Initialize the total value for this kill
+        $totalValue = 0;
+
+        // Loop through the items in the killdata
+        foreach ($extra['items'] as $item) {
+            $osrsItem = OsrsItem::where('item_id', $item['id'])->first();
+
+            if ($osrsItem) {
+                $osrsItem->value = $item['priceEach'];
+                // Calculate the value of this item (price * quantity)
+                $itemValue = $osrsItem->value * $item['quantity'];
+                $totalValue += $itemValue;
+                $osrsItem->save();
+                // Debug output for logging (optional)
+                //$this->info("OSRS: {$osrsItem->name} value: {$osrsItem->value} total for this item: {$itemValue}");
+            }
+
+            // Create a new NpcItem record associated with the NPC kill
+            NpcItem::create([
+                'npc_kill_id' => $npcKill->id,
+                'item_id' => $item['id'],
+                'quantity' => $item['quantity'],
+            ]);
+        }
+
+        // Update the NPC kill with the total value calculated from the items
+        $npcKill->ge_price = $totalValue;
+        $npcKill->save();
+        Log::info('NPC kill saved:', [$npcKill], true);
     }
 }

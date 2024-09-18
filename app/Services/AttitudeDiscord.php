@@ -411,5 +411,39 @@ class AttitudeDiscord
         }
     }
 
+    public function sendImageToDiscord2($channel, $imagePath, $data = null, $logger = null)
+    {
+        try {
+            $url = "channels/{$channel}/messages";
 
+            $response = $this->client->post($url, [
+                'multipart' => [
+                    [
+                        'name'     => 'file',
+                        'contents' => fopen($imagePath, 'r'),
+                        'filename' => 'image.png',
+                    ],
+                    [
+                        'name'     => 'payload_json',
+                        'contents' => json_encode(['embeds' => $data['embeds']]),
+                    ]
+                ],
+            ]);
+
+            if ($response->getStatusCode() === 200 && $logger) {
+                $logger->info('Screenshot sent to Discord successfully');
+            }
+            return $response->getStatusCode() === 200;
+        } catch (ClientException $e) {
+            if ($e->getResponse()->getStatusCode() == 429) {
+                $retryAfter = $e->getResponse()->getHeader('Retry-After')[0];
+                if ($logger) {
+                    $logger->info("Rate limited. Retrying after {$retryAfter} seconds");
+                }
+                sleep($retryAfter);
+                return $this->sendImageToDiscord($channel, $imagePath, $logger);
+            }
+            throw $e;
+        }
+    }
 }
