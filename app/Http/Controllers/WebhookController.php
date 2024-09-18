@@ -36,8 +36,8 @@ class WebhookController extends Controller
         }
         if (isset($data['embeds'])){
             $embeds = ($data['embeds']);
-            $data['embeds'][0]['footer'] = 'Powered by Erva Ring';
-            Log::info('DATA:', [$data['embeds'][0]['footer']], true);
+            $data['embeds'][0]['footer']['text'] = 'Powered by Erva Ring';
+            Log::info('DATA:', [$data['embeds'][0]['footer']['text']], true);
         }
         $playerName = $data['playerName'];
         $player = RSAccount::where('username', $playerName)->first();
