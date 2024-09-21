@@ -3,6 +3,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DiscordUserController;
 use App\Http\Controllers\DiscordRoleController;
+use App\Http\Controllers\DiscordChannelController;
 use App\Http\Controllers\RSAccountController;
 use App\Http\Controllers\BingoCardController;
 use App\Http\Controllers\TileController;
@@ -18,21 +19,21 @@ Route::get('/dashboard', function () {
     return redirect()->route('tasks.team', ['team' => 1, 'bingo' => 1]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 Route::middleware('auth')->prefix('backend')->group(function () {
+    Route::get('/discord/users', [DiscordUserController::class, 'index'])->name('discord.users');
+    Route::get('/discord/roles', [DiscordRoleController::class, 'index'])->name('discord-roles.index');
+    Route::get('/discord/channels', [DiscordChannelController::class, 'index'])->name('discord-channels.index');
+    Route::get('/discord/emojis', [EmojiController::class, 'index'])->name('discord-emojis.index');
+    Route::get('/discord/roles/fix', [DiscordUserController::class, 'backendFix'])->name('discord-roles.check');
+
+
+
     Route::get('/findApiItem/{item_id}', [OsrsItemController::class, 'findApiItem'])->name('find-item');
     //Discord Users
-    Route::get('/discord', [DiscordUserController::class, 'index'])->name('discord.index');
+    
     Route::get('/discord-users/show/{discordUser}', [DiscordUserController::class, 'show'])->name('discord-users.show');
     Route::post('/discord-users/{discordUser}/assign-player', [DiscordUserController::class, 'assignPlayer'])->name('discord-users.assign-player');
     Route::delete('/discord-users/{discordUser}/unassign-player/{account}', [DiscordUserController::class, 'unassignPlayer'])->name('discord-users.unassign-player');
-    Route::get('/discord-users/unconnected', [DiscordUserController::class, 'unconnected'])->name('discord-users.unconnected');
-    
-    //Discord Roles
-    Route::get('/discord-roles', [DiscordRoleController::class, 'index'])->name('discord-roles.index');
-    Route::get('/discord-roles/{discordRole}', [DiscordRoleController::class, 'show'])->name('discord-roles.show');
-
-    //Wom accounts
-    Route::get('/rs-accounts', [RSAccountController::class, 'index'])->name('rs-accounts.index');
-    Route::get('/rs-accounts/{rSAccount}', [RSAccountController::class, 'show'])->name('rs-accounts.show');
+    Route::get('/discord/users/unconnected', [DiscordUserController::class, 'unconnected'])->name('discord-users.unconnected');
 
     //Bingo
     Route::resource('bingo-cards', BingoCardController::class);

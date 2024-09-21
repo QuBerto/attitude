@@ -36,7 +36,8 @@ class SyncDiscordEmojis extends Command
         foreach ($emojis as $emojiData) {
             $emojiId = $emojiData['id'];
             $currentEmojiIds[] = $emojiId;
-
+            $data = json_encode($emojiData['roles']);
+            $this->info("image for emoji: {$data}");
             // Build the image URL from the emoji ID
             $imageUrl = "https://cdn.discordapp.com/emojis/{$emojiId}.png";
 

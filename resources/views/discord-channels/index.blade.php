@@ -23,30 +23,17 @@
             <table class="min-w-full bg-white dark:bg-gray-800">
                 <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th class="w-1/2 py-3 px-4 uppercase font-semibold text-sm text-left" >Role ID</th>
-                        <th class="w-1/2 py-3 px-4 uppercase font-semibold text-sm text-left">Role</th>
-                        <th class="w-1/2 py-3 px-4 uppercase font-semibold text-sm">color</th>
+                        <th class="w-1/2 py-3 px-4 uppercase font-semibold text-sm text-left" >Channel ID</th>
+                        <th class="w-1/2 py-3 px-4 uppercase font-semibold text-sm text-left">Channel</th>
+
                     </tr>
                 </thead>
                 <tbody class="text-gray-700 dark:text-gray-300">
-                    @foreach ($roles as $role)
+                    @foreach ($channels as $channel)
                         <tr>
-                            <td class="w-1/2 py-3 px-4">{{ $role->role_id }}</td>
-                            <td class="w-1/2 py-3 px-4">{{ $role->name }}</td>
-                            <td class="w-1/2 py-3 px-4">  @if($role->color === 0)
-                    
-                                @continue
-                            @endif
-                            @php
-                             // Convert the decimal number to hexadecimal
-                             $hex = dechex($role->color);
-    
-                            // Pad with leading zeros if necessary to ensure 6 characters
-                            $color = str_pad($hex, 6, '0', STR_PAD_LEFT);
-    
-                            $roles[] = strtolower($role->name);
-                            @endphp
-                            <div style="background-color:#{{ $color }};" class="p-2 mb-1 rounded">#{{ $color }}</div></td>
+                            <td class="w-1/2 py-3 px-4">{{ $channel->channel_id }}</td>
+                            <td class="w-1/2 py-3 px-4">{{ $channel->name }}</td>
+                            
                         </tr>
                         <tr>
                           

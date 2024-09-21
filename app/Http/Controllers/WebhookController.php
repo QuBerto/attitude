@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\NpcKillController;
 use App\Http\Controllers\PlayerStatusController;
 use App\Models\RSAccount;
+use App\Models\Loot;
+use App\Models\LootItem;
 use App\Services\AttitudeDiscord;
 use Illuminate\Support\Facades\Log;
 class WebhookController extends Controller
@@ -80,10 +82,26 @@ class WebhookController extends Controller
                 $channel_id = $channels['COLLECTION'];
                 break;
             case 'LOOT':
-                if ($extra['category'] == 'NPC'){
-                    $npc = new NpcKillController();
-                    $npc->storeNew($extra, $player, $user);
+                $loot = Loot::create([
+                    'source' => $extra['source'],
+                    'category' => $extra['category'],
+                    'kill_count' => $extra['killCount'],
+                    'rs_account_id' => $player ? $player->id : null, // Associate the account if found
+                ]);
+                $total = 0;
+                // Save the loot items
+                foreach ($extra['items'] as $item) {
+                    $total += $item['priceEach'] * $item['quantity'];
+                    LootItem::create([
+                        'loot_id' => $loot->id,
+                        'item_id' => $item['id'],
+                        'quantity' => $item['quantity'],
+                        'price_each' => $item['priceEach'],
+                        'name' => $item['name'],
+                    ]);
                 }
+                $loot->value = $total;
+                $loot->save();
                 $channel_id = $channels['LOOT'];
                 break;
             case 'SLAYER':
@@ -96,6 +114,7 @@ class WebhookController extends Controller
                 $channel_id = $channels['CLUE'];
                 break;
             case 'KILL_COUNT':
+                return response()->json(['status' => 'success', 'message' => 'Webhook processed']);
                 break;
             case 'COMBAT_ACHIEVEMENT':
                 $channel_id = $channels['COLLECTION'];
@@ -107,35 +126,38 @@ class WebhookController extends Controller
                 $channel_id = $channels['PET'];
                 break;
             case 'SPEEDRUN':
+                return response()->json(['status' => 'success', 'message' => 'Webhook processed']);
                 break;
             case 'BARBARIAN_ASSAULT_GAMBLE':
-                $channel_id = $channels['BARBARIAN_ASSAULT_GAMBLE'];
+                $channel_id = $channels['LOOT'];
                 break;
             case 'PLAYER_KILL':
                 $channel_id = $channels['PLAYER_KILL'];
                 break;
             case 'GRAND_EXCHANGE':
+                return response()->json(['status' => 'success', 'message' => 'Webhook processed']);
                 break;
             case 'TRADE':
+                return response()->json(['status' => 'success', 'message' => 'Webhook processed']);
                 break;
             case 'CHAT':
+                return response()->json(['status' => 'success', 'message' => 'Webhook processed']);
                 break;
             case 'LOGIN':
                 $playerStatus = new PlayerStatusController();
                 $playerStatus->login($extra, $player, $user);
+                return response()->json(['status' => 'success', 'message' => 'Webhook processed']);
                 break;
                 
             case 'LOGOUT':
                 $playerStatus = new PlayerStatusController();
                 $playerStatus->logout($player, $user);
+                return response()->json(['status' => 'success', 'message' => 'Webhook processed']);
                 break;
             default:
                 $channel_id = 1107960124871544946;
                 break;
         }
-        //$channel_id = 1107960124871544946;
-        // Process the request as needed
-        // ...
         // Get the uploaded file (temporary file)
         $uploadedFile = $request->file('file');
         if($uploadedFile){

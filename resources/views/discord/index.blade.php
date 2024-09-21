@@ -1,34 +1,27 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Discord Users') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+    <div class="flex gap-5">
 
 
+        @isset($menuItems)
+            <div class="hidden xl:flex xl:inset-y-0 xl:z-50 xl:flex xl:w-72 xl:flex-col">
 
-
-                    <main class="">
-                        <div class="">
-                            <div class="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
-                                <!-- Main area -->
-                                @include('discord.users')
-                            </div>
-                        </div>
-                    </main>
-
-
+                <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-black/10 px-6 ring-1 ring-white/5">
+                    <div class="flex h-16 shrink-0 items-center">
+                        Discord
+                    </div>
+                    <nav class="flex flex-1 flex-col">
+                        <ul role="list" class="flex flex-1 flex-col gap-y-7">
+                            <li>
+                                <x-sidebar-menu :items="$menuItems" />
+                            </li>
+                    </nav>
                 </div>
-
-
-
             </div>
+        @endisset
+
+        <div>
+            @include('discord.users')
         </div>
     </div>
-    </div>
+
 </x-app-layout>

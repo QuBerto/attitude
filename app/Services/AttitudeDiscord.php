@@ -83,7 +83,10 @@ class AttitudeDiscord
     {
         return $this->connect('roles');
     }
-
+    public function get_channels()
+    {
+        return $this->connect('channels');
+    }
     public function listChannels()
     {
         return $this->connect('channels');

@@ -18,7 +18,7 @@
                     {{-- <x-nav-link :href="route('events.create')" :active="request()->routeIs('events.create')">
                         {{ __('Events') }}
                     </x-nav-link> --}}
-                    <x-nav-link :href="route('discord.index')" :active="request()->routeIs('discord.index')">
+                    <x-nav-link :href="route('discord.users')" :active="request()->routeIs('discord.users')">
                         {{ __('Discord') }}
                     </x-nav-link>
                     <x-nav-link :href="route('bingo-cards.index')" :active="request()->routeIs('bingo-cards.index')">
@@ -91,7 +91,7 @@
         </div>
 
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('discord.index')" :active="request()->routeIs('discord.index')">
+            <x-responsive-nav-link :href="route('discord.users')" :active="request()->routeIs('discord.users')">
                 {{ __('Discord Users') }}
             </x-responsive-nav-link>
         </div>

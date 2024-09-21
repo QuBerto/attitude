@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DiscordRole;
 use Illuminate\Http\Request;
-
-class DiscordRoleController extends Controller
+use App\Models\Channel;
+class DiscordChannelController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
     public function index()
     {
         $menuItems = [
@@ -20,13 +22,13 @@ class DiscordRoleController extends Controller
                 'label' => 'Roles',
                 'url' => route('discord-roles.index'),
                 'type' => 'deployments',
-                'active' => true,
+                'active' => false,
             ],
             [
                 'label' => 'Channels',
                 'url' => route('discord-channels.index'),
                 'type' => 'activity',
-                'active' => false,
+                'active' => true,
             ],
             [
                 'label' => 'Emojis',
@@ -42,12 +44,16 @@ class DiscordRoleController extends Controller
                 'active' => false,
             ]
         ];
-        $roles = DiscordRole::with('users')->get();
-        return view('discord-roles.index', compact('roles', 'menuItems'));
+        $channels = Channel::all();
+        return view('discord-channels.index', ['channels' => $channels, 'menuItems'=> $menuItems]);
     }
 
-    public function show(DiscordRole $discordRole)
+  
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
     {
-        return view('discord-roles.show', compact('discordRole'));
+        //
     }
 }

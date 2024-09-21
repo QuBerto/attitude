@@ -15,7 +15,39 @@ class DiscordUserController extends Controller
 {
     public function index(Request $request)
     {
- 
+        $menuItems = [
+            [
+                'label' => 'Users',
+                'url' => route('discord.users'),
+                'type' => 'projects',
+                'active' => true,
+            ],
+            [
+                'label' => 'Roles',
+                'url' => route('discord-roles.index'),
+                'type' => 'deployments',
+                'active' => false,
+            ],
+            [
+                'label' => 'Channels',
+                'url' => route('discord-channels.index'),
+                'type' => 'activity',
+                'active' => false,
+            ],
+            [
+                'label' => 'Emojis',
+                'url' => route('discord-emojis.index'),
+                'type' => 'domains',
+                'active' => false,
+            ]
+            ,
+            [
+                'label' => 'Check user roles',
+                'url' => route('discord-roles.check'),
+                'type' => 'domains',
+                'active' => false,
+            ]
+        ];
         // Get search term and role filter from the request
         $search = $request->input('search', '');
         $roleFilter = $request->input('role', '');
@@ -38,9 +70,9 @@ class DiscordUserController extends Controller
 
         // Get all roles for the filter dropdown
         $roles = DiscordRole::all();
-
+     
         // Return the view with users, rsAccounts, and roles
-        return view('discord.index', compact('users', 'rsAccounts', 'roles', 'search', 'roleFilter'));
+        return view('discord.index', compact('users', 'rsAccounts', 'roles', 'search', 'roleFilter', 'menuItems'));
     }
 
 
@@ -117,6 +149,125 @@ class DiscordUserController extends Controller
             return response()->json(['error' => 'Discord user not found'], 404);
         }
     }
+
+    public function backendFix()
+    {
+        $disc = new AttitudeDiscord(env('DISCORD_GUILD_ID'), env('DISCORD_BOT_TOKEN'));
+
+        // Get all users with RS accounts
+        $users = DiscordUser::has('rsAccounts')->get();
+        $roles = DiscordRole::all();
+
+        // List of roles that are considered "steel or higher"
+        $steelOrHigherRoles = ['steel', 'silver', 'gold', 'mithril', 'adamant', 'rune', 'dragon', 'moderator', 'owner', 'deputy owner'];
+        
+        // Define roles to remove (e.g., "bronze" and "iron")
+        $rolesToRemove = ['bronze', 'iron'];
+        $roleHierarchy = array_merge($rolesToRemove, $steelOrHigherRoles);
+        // List of roles that are considered "steel or higher"
+        $steelOrHigherRoles = ['steel', 'silver', 'gold', 'mithril', 'adamant', 'rune', 'dragon', 'moderator', 'owner', 'deputy owner'];
+
+        // Define roles to remove (e.g., "bronze" and "iron")
+        $rolesToRemove = ['bronze', 'iron'];
+        $allowedRoles = array_merge($rolesToRemove, $steelOrHigherRoles); // Merge both arrays for comparison
+        $data = [];
+
+        foreach ($users as $user) {
+            $discordRoles = [];
+            $userData = [];
+            
+            // Get current roles as role IDs
+            $newRoles = $user->roles->pluck('role_id')->toArray(); 
+            
+            // Collect and filter the user's roles from Discord based on the allowed roles
+            foreach ($user->roles as $role) {
+                $roleName = strtolower($role->name);
+                if (in_array($roleName, $allowedRoles)) {
+                    $discordRoles[] = $roleName;
+                }
+            }
+            // Normalize roles for easier comparison
+            if (in_array('deputy owner', $discordRoles) && !in_array('owner', $discordRoles)) {
+                $discordRoles[] = 'owner';  // Treat 'deputy owner' as 'owner'
+            }
+
+            // Sort roles based on hierarchy
+            usort($discordRoles, function ($a, $b) use ($roleHierarchy) {
+                return array_search($a, $roleHierarchy) - array_search($b, $roleHierarchy);
+            });
+
+            // Check if user has "steel or higher" role in Discord
+            $hasSteelOrHigher = array_intersect($steelOrHigherRoles, $discordRoles);
+            $userData['has_steel_or_higher'] = !empty($hasSteelOrHigher);
+
+            // Check if the user has any lower-tier roles than their highest role
+            $highestRoleIndex = array_search($discordRoles[0], $roleHierarchy); // First role is the highest after sorting
+            $hasLowerRoles = false;
+            foreach ($discordRoles as $role) {
+                if (array_search($role, $roleHierarchy) > $highestRoleIndex) {
+                    $hasLowerRoles = true;
+                    break;
+                }
+            }
+            $userData['has_lower_roles'] = $hasLowerRoles;
+            $accounts = [];
+            // Check if all RS accounts match their Discord rank
+            $allRsAccountsMatch = true;
+            foreach ($user->rsAccounts as $account) {
+                if (!in_array(strtolower($account->role), $steelOrHigherRoles)) {
+                    $allRsAccountsMatch = false;
+                    break;
+                }
+                $accounts[] = ['username' => $account->username, 'role' => $account->role];
+            }
+            $userData['accounts'] = $accounts;
+            $userData['all_rs_accounts_match'] = $allRsAccountsMatch;
+
+            // Add username and roles for reference in the view
+            $userData['username'] = $user->username;
+            $userData['discord_roles'] = $discordRoles; // Add roles to user data
+
+            $data[] = $userData;
+        }
+
+        $menuItems = [
+            [
+                'label' => 'Users',
+                'url' => route('discord.users'),
+                'type' => 'projects',
+                'active' => false,
+            ],
+            [
+                'label' => 'Roles',
+                'url' => route('discord-roles.index'),
+                'type' => 'deployments',
+                'active' => false,
+            ],
+            [
+                'label' => 'Channels',
+                'url' => route('discord-channels.index'),
+                'type' => 'activity',
+                'active' => false,
+            ],
+            [
+                'label' => 'Emojis',
+                'url' => route('discord-emojis.index'),
+                'type' => 'domains',
+                'active' => false,
+            ]
+            ,
+            [
+                'label' => 'Check user roles',
+                'url' => route('discord-roles.check'),
+                'type' => 'domains',
+                'active' => true,
+            ]
+        ];
+        // Return the data to a view
+        return view('discord-roles.check', compact('data', 'menuItems'));
+    }
+
+    
     public function fixUserRoles()
     {
 

@@ -1,5 +1,6 @@
+
   <!-- Search and Filter Form -->
-  <form method="GET" action="{{ route('discord.index') }}" class="mb-4 flex items-center space-x-4">
+  <form method="GET" action="{{ route('discord.users') }}" class="mb-4 flex items-center space-x-4">
     <input 
         type="text" 
         name="search" 
@@ -23,24 +24,27 @@
 </form>
 
 <!-- Table of Discord Users -->
-<table class="min-w-full bg-white dark:bg-gray-800">
+<table class="min-w-full divide-y divide-gray-700 bg-white dark:bg-gray-800">
     <thead class="bg-gray-800 text-white">
         <tr>
-            <th class="w-1/4 py-3 px-4 uppercase font-semibold text-sm">Username (nick)</th>
-            <th class="w-1/4 py-3 px-4 uppercase font-semibold text-sm">Roles</th>
-            <th class="w-1/4 py-3 px-4 uppercase font-semibold text-sm">RSN</th>
+            <th class="w-1/4 py-3 px-4 uppercase font-semibold text-left text-sm">Username</th>
+            <th class="w-1/4 py-3 px-4 uppercase font-semibold text-left text-sm">Nick</th>
+
+            <th class="w-1/4 py-3 px-4 uppercase font-semibold text-center text-sm">Status</th>
+            {{-- <th class="w-1/4 py-3 px-4 uppercase font-semibold text-sm">RSN</th> --}}
         </tr>
     </thead>
-    <tbody class="text-gray-700 dark:text-gray-300">
+    <tbody class="text-gray-700 dark:text-gray-300  divide-y divide-gray-800">
         @foreach ($users as $user)
             <tr>
-                <td class="w-1/4 py-3 px-4">{{ $user->username }} ({{ $user->nick }})</td>
-                <td class="w-1/4 py-3 px-4" style="max-width:250px;">
-                    <div class="flex gap-2">
+                <td class="w-1/4 py-3 px-4">
+                    <div class="flex gap-2 items-center">
+                    {{ $user->username }}
                     @php
                     $roles = [];
                     @endphp
                     @foreach ($user->roles as $role)
+              
                         @if($role->color === 0)
                     
                             @continue
@@ -59,7 +63,33 @@
                     @endforeach
                     </div>
                 </td>
-                <td class="w-1/4 py-3 px-4">
+                <td class="w-1/4 py-3 px-4">{{ $user->nick }}</td>
+              
+                <td class="w-1/4 py-3 px-4 text-center">
+                @if($user->rsAccounts->first())
+               
+                  
+                <div class="flex items-center justify-center gap-x-2">
+                    <time class="text-gray-400 sm:hidden" datetime="2023-01-23T11:00">45 minutes ago</time>
+                    <div class="flex-none rounded-full bg-green-400/10 p-1 text-green-400">
+                      <div class="h-1.5 w-1.5 rounded-full bg-current"></div>
+                    </div>
+          
+                  </div>
+              
+                @else
+         
+                <div class="flex items-center justify-center gap-x-2">
+                    <time class="text-gray-400 sm:hidden" datetime="2023-01-23T00:00">12 hours ago</time>
+                    <div class="flex-none rounded-full bg-rose-400/10 p-1 text-rose-400">
+                      <div class="h-1.5 w-1.5 rounded-full bg-current"></div>
+                    </div>
+              
+                  </div>
+                
+                @endif
+            </td>
+                {{-- <td class="w-1/4 py-3 px-4">
                     @foreach($user->rsAccounts as $account)
   
                         {{ $account->username }}
@@ -81,7 +111,7 @@
                             Submit
                         </button>
                     </form>
-                </td>
+                </td> --}}
             </tr>
         @endforeach
     </tbody>

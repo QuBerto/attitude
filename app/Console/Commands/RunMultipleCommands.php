@@ -34,6 +34,10 @@ class RunMultipleCommands extends Command
         $this->info('Syncing wise old man...');
         Artisan::call('sync:wiseoldman-users 5260');
 
+        $this->info('Syncing Emojis...');
+        Artisan::call('sync:channels');
+
+
         $this->info('Syncing Discord & WOM...');
         Artisan::call('sync:discord-rsaccounts');
 

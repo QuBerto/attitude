@@ -10,8 +10,41 @@ class EmojiController extends Controller
     // Display a listing of the emojis
     public function index()
     {
+        $menuItems = [
+            [
+                'label' => 'Users',
+                'url' => route('discord.users'),
+                'type' => 'projects',
+                'active' => false,
+            ],
+            [
+                'label' => 'Roles',
+                'url' => route('discord-roles.index'),
+                'type' => 'deployments',
+                'active' => false,
+            ],
+            [
+                'label' => 'Channels',
+                'url' => route('discord-channels.index'),
+                'type' => 'activity',
+                'active' => false,
+            ],
+            [
+                'label' => 'Emojis',
+                'url' => route('discord-emojis.index'),
+                'type' => 'domains',
+                'active' => true,
+            ]
+            ,
+            [
+                'label' => 'Check user roles',
+                'url' => route('discord-roles.check'),
+                'type' => 'domains',
+                'active' => false,
+            ]
+        ];
         $emojis = Emoji::all();
-        return view('emojis.index', compact('emojis'));
+        return view('emojis.index', compact('emojis', 'menuItems'));
     }
 
     // Show the form for creating a new emoji

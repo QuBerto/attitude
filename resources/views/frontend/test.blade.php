@@ -104,7 +104,7 @@
                                     @endif">
                                     {{ $loop->iteration }}
                                 </td>
-                                <td class="text-left text-white">{{ $kill->discordUser->username }}</td>
+                                <td class="text-left text-white">{{ $kill->rsAccount->username }}</td>
                                 <td class="text-left">
                                     @if ($kill->npc)
                                         @if ($kill->npc->getFirstMediaUrl('*'))
@@ -116,6 +116,9 @@
                                         @else
                                             {{ $kill->npc_id }}
                                         @endif
+
+                                    @else
+                                    {{$kill->source}}
                                     @endif
                                 </td>
                                 <td>
@@ -142,7 +145,7 @@
                                         @endforeach
                                     </ul>
                                 </td>
-                                <td>{{ $kill->ge_price }}</td>
+                                <td>{{ $kill->value }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -176,7 +179,7 @@
                                     @endif">
                                     {{ $loop->iteration }}
                                 </td>
-                                <td class="text-left text-white">{{ $userLoot->discordUser->username ?? 'Unknown User' }}</td>
+                                <td class="text-left text-white">{{ $userLoot->rsAccount->username ?? 'Unknown User' }}</td>
                                 <td>{{ number_format($userLoot->total_loot) }}</td>
                             </tr>
                         @endforeach

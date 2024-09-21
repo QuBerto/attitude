@@ -30,11 +30,11 @@ Route::prefix('webhook')->group(function () {
         $npc = new WebhookController();
         return $npc->webhook($request); // Pass the request to the webhook method
     });
-    Route::post('/npc_kill', [NpcKillController::class, 'store']);
-    Route::get('/npc_kills', [NpcKillController::class, 'index']); 
-    Route::get('/npc_kills/{id}', [NpcKillController::class, 'show']);
-    Route::post('/player_status', [PlayerStatusController::class, 'store']);
-    Route::post('/loot', [LootController::class, 'store']);
+    // Route::post('/npc_kill', [NpcKillController::class, 'store']);
+    // Route::get('/npc_kills', [NpcKillController::class, 'index']); 
+    // Route::get('/npc_kills/{id}', [NpcKillController::class, 'show']);
+    // Route::post('/player_status', [PlayerStatusController::class, 'store']);
+    // Route::post('/loot', [LootController::class, 'store']);
     //Route::post('{clan_secret}', [MessageController::class, 'store']);
 });
 
