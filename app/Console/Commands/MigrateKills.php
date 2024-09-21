@@ -77,7 +77,7 @@ class MigrateKills extends Command
                 'loot_id' => $loot->id,
                 'item_id' => $item->item_id,
                 'quantity' => $item->quantity,
-                'price_each' => $value,
+                'price_each' => $value ?? 0,
                 'name' => $name,
                 'updated_at' => $item->updated_at,
                 'created_at' =>$item->created_at
