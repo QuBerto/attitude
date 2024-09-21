@@ -15,4 +15,9 @@ class LootItem extends Model
     {
         return $this->belongsTo(Loot::class);
     }
+     // Define the relationship to OsrsItem
+     public function osrsItem()
+     {
+         return $this->belongsTo(OsrsItem::class, 'item_id', 'item_id');
+     }
 }
