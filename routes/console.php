@@ -10,7 +10,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote')->hourly();
 Schedule::command('capture:screen')->everyFifteenMinutes();
 Schedule::command('app:sync')->everySixHours();
-
+Schedule::command('fetch:osrs-items')->everySixHours();
  // Schedule the 'sync:discord-rsaccounts' command to run daily at 00:30
  Schedule::command('generate:tokens')->dailyAt('00:11');
 

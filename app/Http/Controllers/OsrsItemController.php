@@ -213,5 +213,35 @@ class OsrsItemController extends Controller
     return floatval($price);
 }
 
+
+public function searchItems(Request $request)
+{
+    // Default values for pagination and sorting
+    $perPage = $request->input('per_page', 50);    // Items per page
+    $search = $request->input('search', '');       // Search term
+    $sortBy = $request->input('sort_by', 'item_id'); // Default sort by 'item_id'
+    $sortOrder = $request->input('sort_order', 'asc'); // Default ascending order
+
+    // Query the OSRS items table with search filters and sorting
+    $items = OsrsItem::when($search, function ($query) use ($search) {
+            return $query->where('name', 'like', '%' . $search . '%')
+                         ->orWhere('description', 'like', '%' . $search . '%');
+        })
+        ->orderBy($sortBy, $sortOrder)
+        ->paginate($perPage);
+
+    // Return the items in JSON format with pagination meta data
+    return response()->json([
+        'data' => $items->items(),
+        'current_page' => $items->currentPage(),
+        'total' => $items->total(),
+        'last_page' => $items->lastPage(),
+        'per_page' => $items->perPage(),
+        'search' => $search,
+        'sort_by' => $sortBy,
+        'sort_order' => $sortOrder,
+    ]);
+}
+
     
 }

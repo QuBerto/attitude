@@ -10,6 +10,7 @@ use App\Http\Controllers\DiscordUserController;
 use App\Http\Controllers\PlayerStatusController;
 use App\Http\Controllers\NpcKillController;
 use App\Http\Controllers\LootController;
+use App\Http\Controllers\OsrsItemController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
@@ -40,6 +41,7 @@ Route::prefix('webhook')->group(function () {
 
 
 Route::prefix('api')->group(function () {
+    Route::get('get-item', [OsrsItemController::class, "searchItems"])->name('api.item');
     Route::get('get-token', [DiscordUserController::class, 'getToken']);
     Route::resource('clan', ClanController::class)->except('show');
     Route::resource('clan-secret', ClanSecretController::class)->except(['show', 'index', 'edit', 'update', 'create', 'destroy']);
